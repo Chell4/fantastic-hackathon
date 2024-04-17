@@ -1,9 +1,7 @@
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
-	fmt.Println("Fuck .gitignore!")
+	s := NewServer("localhost:8080")
+
+	s.StartServer()
 }
