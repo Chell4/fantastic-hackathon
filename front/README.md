@@ -1,7 +1,7 @@
-<image href="../assets/NACO_Transparent.png"></image>
-# NACO Frontend for Fantastic Hackaton.
-<br>
-TODO: <br>
+# <table><tr><td valign="center" halign="center"><img src="https://raw.githubusercontent.com/Chell4/fantastic-hackathon/main/assets/NACO.svg" width=20%>&nbsp;NACO&nbsp;Frontend&nbsp;for&nbsp;Fantastic&nbsp;Hackaton.</td></tr></table>
+
+### TODO: 
+
 - [ ] Login Page
 - [ ] Register Page
 - [ ] Home Page
