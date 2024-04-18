@@ -49,12 +49,6 @@
         }];
 
         entryPoint = "postgres";
-        envVars = {
-          POSTGRES_USER = "youruser";
-          POSTGRES_PASSWORD = "YourStr0ngP4ssword";
-          POSTGRES_DB = "yourdatabase";
-          PGDATA = "/tmp/pgdata";
-        };
 
         volumes = ["${pkgs.writeText "pg_hba.conf" ''
           local all all trust

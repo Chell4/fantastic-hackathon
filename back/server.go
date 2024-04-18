@@ -6,15 +6,15 @@ import (
 	. "back/handlers"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
-type Server struct {
-	HandlersServer
-}
+type Server struct{ HandlersServer }
 
-func NewServer(Address string) Server {
+func NewServer(address string, db *gorm.DB) Server {
 	return Server{HandlersServer: HandlersServer{
-		Address: Address,
+		Address: address,
+		DB:      db,
 	}}
 }
 
@@ -22,11 +22,13 @@ type Endpoints = map[string]func(http.ResponseWriter, *http.Request)
 
 func (s *Server) endpoints() Endpoints {
 	return Endpoints{
-		`/ping`:                             s.HandlePing,
-		`/ping/{pong:\w*}`:                  s.HandlePing,
-		`/auth/sign-in`:                     s.HandlePing,
-		`/auth/register`:                    s.HandlePing,
-		`/auth/logout`:                      s.HandlePing,
+		`/ping`:            s.HandlePing,
+		`/ping/{pong:\w*}`: s.HandlePing,
+
+		`/auth/sign-in`:  s.HandlePing,
+		`/auth/register`: s.HandlePing,
+		`/auth/logout`:   s.HandlePing,
+
 		`/{username:[^/]{5,}}`:              s.HandleUser,
 		`/{username:[^/]{5,}}/{action:\w*}`: s.HandleUser,
 	}
