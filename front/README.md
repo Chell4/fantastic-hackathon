@@ -2,8 +2,8 @@
 # NACO Frontend for Fantastic Hackaton.
 <br>
 TODO: <br>
-- Login Page
-- Register Page
-- Home Page
-- Backend Connection
-- etc.
+- [ ] Login Page
+- [ ] Register Page
+- [ ] Home Page
+- [ ] Backend Connection
+- [ ] etc.
