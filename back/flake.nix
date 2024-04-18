@@ -22,7 +22,17 @@
         vendorHash = null;
       };
       
-      dbContainer = pkgd.dockerTools.buildImageWithSettings {
+      backContainer = pkgs.dockerTools.buildImage {
+        name = "back-container";
+
+        config = {
+          Cmd = [
+            "${backMod}/bin/back"
+          ];
+        };
+      };
+      
+      dbContainer = pkgs.dockerTools.buildImageWithSettings {
         name = "db";
 
         baseImage = pkgs.dockerTools.alpineImage {
@@ -48,7 +58,7 @@
 
         volumes = ["${pkgs.writeText "pg_hba.conf" ''
           local all all trust
-        ''}": "/tmp/pgdata/pg_hba.conf"];
+        ''}" "/tmp/pgdata/pg_hba.conf"];
       };
     in
     {
