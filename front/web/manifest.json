@@ -1,6 +1,6 @@
 {
-    "name": "front",
-    "short_name": "front",
+    "name": "NACO",
+    "short_name": "NACO",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
