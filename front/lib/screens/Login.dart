@@ -94,7 +94,13 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                         ),
                         ElevatedButton(
                           onPressed: onSubmitBtnPressed,
-                          child: const Text('Login', textScaler: TextScaler.linear(1.2), ),
+                          child: Text('Login', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         )
                       ],
                     ),

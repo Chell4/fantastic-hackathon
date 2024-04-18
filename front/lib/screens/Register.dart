@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:gif/gif.dart';
@@ -113,7 +114,13 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                         ),
                         ElevatedButton(
                           onPressed: onSubmitBtnPressed,
-                          child: const Text('Register', textScaler: TextScaler.linear(1.2), ),
+                          child: Text('Register', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         )
                       ],
                     ),
