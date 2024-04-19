@@ -25,11 +25,13 @@ type HandlersServer struct {
 }
 
 type User struct {
-	ID string `gorm:"primaryKey,size:16"`
+	ID string `gorm:"primaryKey"`
 
 	FirstName   *string
 	SecondName  *string
 	LastName    *string
+	PhoneNumber *string
+	Email       *string
 	PicturePath *string
 
 	CreatedAt time.Time

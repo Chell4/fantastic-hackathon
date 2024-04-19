@@ -13,10 +13,6 @@ type LoginRequest struct {
 	photoURL string `json:"photo_url"`
 }
 
-type LoginResponse struct {
-	googleID string `json:"google_id"`
-}
-
 func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	bodyJSON, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -64,6 +60,8 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	if CheckServerError(w, err) {
 		return
 	}
+
+	hashData := hash.Sum(nil)
 
 	//err = s.DB.Table("users").Create(&User{})
 }

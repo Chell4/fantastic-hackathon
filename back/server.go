@@ -32,8 +32,7 @@ func (s *Server) endpoints() Endpoints {
 		`/auth/register`: s.HandleRegister,
 		`/auth/logout`:   s.HandleLogout,
 
-		`/{username:[^/]{5,}}`:              s.HandleUser,
-		`/{username:[^/]{5,}}/{action:\w*}`: s.HandleUser,
+		`/profile`: s.HandleProfile,
 	}
 }
 
