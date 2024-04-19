@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -13,6 +15,7 @@ const (
 	ErrStatusDatabaseErr           = "Error while interacting with database"
 	ErrStatusUserExists            = "User with this login already exists"
 	ErrStatusRegisterUserNotExists = "User with this id doesn't exist"
+	ErrStatusInvalidPhotoURL       = "Sent photo url is invalid"
 )
 
 type HandlersServer struct {
@@ -24,11 +27,20 @@ type HandlersServer struct {
 type User struct {
 	ID string `gorm:"primaryKey,size:16"`
 
-	FirstName  *string
-	SecondName *string
-	LastName   *string
-	PictureUrl *string
+	FirstName   *string
+	SecondName  *string
+	LastName    *string
+	PicturePath *string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+func CheckServerError(w http.ResponseWriter, err error) bool {
+	if err == nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		log.Println(err)
+		return true
+	}
+	return false
 }
