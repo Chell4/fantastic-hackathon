@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -10,5 +12,13 @@ type HandlersServer struct {
 }
 
 type User struct {
-	gorm.Model
+	ID string `gorm:"primaryKey,size:16"`
+
+	FirstName  string
+	SecondName *string
+	LastName   string
+	PictureUrl *string
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

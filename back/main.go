@@ -6,19 +6,12 @@ import (
 	"os"
 	"strings"
 
+	. "back/handlers"
+
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-const dbInitSchema = `
-	CREATE TABLE IF NOT EXISTS users (
-		id uuid PRIMARY KEY
-		login TEXT
-		email TEXT
-		pass_hash bytea
-	);
-`
 
 func main() {
 	err := godotenv.Load()
@@ -45,7 +38,15 @@ func main() {
 		log.Fatalln("Unable to connect to db:", err)
 	}
 
-	db.Exec(dbInitSchema)
+	err = db.AutoMigrate(&User{})
+	if err != nil {
+		log.Fatalln("Unable to automigrate db:", err)
+	}
+
+	err = db.Migrator().RenameTable(&User{}, "users")
+	if err != nil {
+		log.Fatalln("Unable to rename table:", err)
+	}
 
 	s := NewServer("localhost:8080", db)
 
