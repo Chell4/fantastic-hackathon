@@ -8,7 +8,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/patrickmn/go-cache"
-	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +18,6 @@ func NewServer(address string, db *gorm.DB) Server {
 		Address:  address,
 		DB:       db,
 		JWTcache: cache.New(24*time.Hour, 10*time.Minute),
-		Schedule: cron.New()
 	}}
 }
 
@@ -42,7 +40,7 @@ func (s *Server) endpoints() Endpoints {
 
 func (s *Server) StartServer() error {
 	mulx := mux.NewRouter()
-	
+
 	for endpoint, handler := range s.endpoints() {
 		mulx.HandleFunc(endpoint, handler)
 	}
@@ -52,7 +50,7 @@ func (s *Server) StartServer() error {
 		return err
 	}
 
-	s.Schedule.AddFunc("CRON_TZ=Europe/Moscow 0 0 * * 1", ...)
-	s.Schedule.Start()
 	return nil
 }
+
+func someActions() {}
