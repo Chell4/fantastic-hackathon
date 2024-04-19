@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:front/screens/Login.dart';
 import 'package:front/screens/Register.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 void main() {
+  setPathUrlStrategy();
   runApp(const MyApp());
 }
 
@@ -12,7 +14,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'NACO',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.black45),
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       debugShowMaterialGrid: false,
-      home: MyHomePage(),
+      routerConfig: router,
     );
   }
 }
@@ -37,12 +39,30 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+final GoRouter router = GoRouter(routes: [
+  GoRoute(path: '/', name: "Home", builder: (_, __) => MyHomePage()),
+  GoRoute(path: '/login', name: "Login", builder: (_, __) => Login()),
+  GoRoute(path: '/register', name: "Register", builder: (_, __) => Register())
+  ], navigatorKey: navigatorKey,
+    redirect: (context, state) async {
+      final requireAuth = state.fullPath != "/login" && state.fullPath != "/register";
+      final jwtToken = null; // TODO
+
+      if (requireAuth && (jwtToken == null || jwtToken.isEmpty)) {
+        return '/login';
+      }
+
+      return null;
+});
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Login(),
+      body: Text("Hi)))"),
     );
   }
 }
