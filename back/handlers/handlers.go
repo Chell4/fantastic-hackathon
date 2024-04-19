@@ -7,6 +7,14 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	ErrStatusCannotReadBody        = "Request body is not readable"
+	ErrStatusInvalidJSON           = "Invlalid json schema"
+	ErrStatusDatabaseErr           = "Error while interacting with database"
+	ErrStatusUserExists            = "User with this login already exists"
+	ErrStatusRegisterUserNotExists = "User with this id doesn't exist"
+)
+
 type HandlersServer struct {
 	Address  string
 	DB       *gorm.DB
