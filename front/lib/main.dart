@@ -42,9 +42,10 @@ class MyHomePage extends StatefulWidget {
 final GoRouter router = GoRouter(routes: [
   GoRoute(path: '/', name: "Home", builder: (_, __) => MyHomePage()),
   GoRoute(path: '/login', name: "Login", builder: (_, __) => Login()),
+  GoRoute(path: '/register', name: "Register", builder: (_, __) => Register()),
   ], navigatorKey: navigatorKey,
     redirect: (context, state) async {
-      final requireAuth = state.fullPath != "/login";
+      final requireAuth = state.fullPath != "/login" && state.fullPath != "/register";
       final jwtToken = null; // TODO
 
       if (requireAuth && (jwtToken == null || jwtToken.isEmpty)) {

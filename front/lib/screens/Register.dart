@@ -74,7 +74,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                           )
                           ),
                           SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.1,
+                            height: min(maxWidth, constraints.maxWidth) * 0.05,
                           ),
                           MaterialTextField(
                             keyboardType: TextInputType.text,
@@ -125,31 +125,15 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.05,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: onSubmitBtnPressed,
-                                child: Text('Register', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
+                          ElevatedButton(
+                            onPressed: onSubmitBtnPressed,
+                            child: Text('Register', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              ElevatedButton.icon(
-                                onPressed: signInWithGoogle,
-                                icon: Icon(Icons.account_box),
-                                label: Text('Sign in with Google'),
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.025,
@@ -158,8 +142,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                             onTap: () {
                               context.go("/login");
                             },
-                            child: const Text("Sign In"),
-                          )
+                            child: Text("Or sign in...", style: Theme.of(context).textTheme.bodyMedium!.copyWith(decoration: TextDecoration.underline),),
+                          ),
+                          SizedBox(
+                            height: constraints.maxHeight * 0.15,
+                          ),
+                          Text("Natus Coders for Oggetto, 2024")
                         ],
                       ),
                     ),
@@ -178,32 +166,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
       // TO BACKEND
     } else {
       shakeController.shake();
-    }
-  }
-
-  Future<void> signInWithGoogle() async {
-    try {
-      // Создание экземпляра GoogleSignIn
-      GoogleSignIn googleSignIn = GoogleSignIn();
-
-      // Получение учетных данных пользователя от Google
-      GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-
-      // Проверка на отмену аутентификации
-      if (googleSignInAccount == null) return;
-
-      // Получение аутентификационных данных
-      GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
-
-      // Получение токена доступа и ID токена
-      String accessToken = googleSignInAuthentication.accessToken!;
-      String idToken = googleSignInAuthentication.idToken!;
-
-      // Действия после успешной аутентификации
-      // Например, отправка данных на сервер или навигация пользователя
-    } catch (error) {
-      // Обработка ошибок аутентификации
-      print('Error signing in with Google: $error');
     }
   }
 }
