@@ -10,14 +10,14 @@ import (
 const BcryptCost = 10
 
 type RegisterRequest struct {
-	ID          string `json:"id"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	PhoneNumber string `json:"phone_number"`
-	FirstName   string `json:"first_name"`
-	SecondName  string `json:"second_name"`
-	LastName    string `json:"last_name"`
-	PicturePath string `json:"picture_path"`
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash []byte `json:"password"`
+	PhoneNumber  string `json:"phone_number"`
+	FirstName    string `json:"first_name"`
+	SecondName   string `json:"second_name"`
+	LastName     string `json:"last_name"`
+	PicturePath  string `json:"picture_path"`
 }
 
 type RegisterResponse struct {
@@ -38,15 +38,16 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 	var cnt int64
 	s.DB.Where("google_id = ?", resp.ID).Count(&cnt)
 	if cnt == 0 {
-		log.Fatalln("User with this ID doesn`t exist.")
-	} else {
-		s.DB.Model(&User{}).Where("google_id = ?", resp.ID).Updates(User{
-			Email:       &resp.Email,
-			PhoneNumber: &resp.PhoneNumber,
-			FirstName:   &resp.FirstName,
-			SecondName:  &resp.SecondName,
-			LastName:    &resp.LastName,
-			PicturePath: &resp.PicturePath,
+		s.DB.Table("users").Create(&User{
+			ID:           resp.ID,
+			FirstName:    resp.FirstName,
+			SecondName:   &resp.SecondName,
+			LastName:     resp.LastName,
+			PasswordHash: resp.PasswordHash,
+			PhoneNumber:  resp.PhoneNumber,
+			PicturePath:  &resp.PicturePath,
 		})
+	} else {
+		log.Fatalln("User with current phone number already exist.")
 	}
 }
