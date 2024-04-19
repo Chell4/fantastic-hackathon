@@ -7,17 +7,14 @@ import (
 	"net/http"
 )
 
-const BcryptCost = 10
-
 type RegisterRequest struct {
-	ID           string `json:"id"`
-	Email        string `json:"email"`
-	PasswordHash []byte `json:"password"`
-	PhoneNumber  string `json:"phone_number"`
-	FirstName    string `json:"first_name"`
-	SecondName   string `json:"second_name"`
-	LastName     string `json:"last_name"`
-	PicturePath  string `json:"picture_path"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	PhoneNumber string `json:"phone_number"`
+	FirstName   string `json:"first_name"`
+	SecondName  string `json:"second_name"`
+	LastName    string `json:"last_name"`
+	PicturePath string `json:"picture_path"`
 }
 
 type RegisterResponse struct {

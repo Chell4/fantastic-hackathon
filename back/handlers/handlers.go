@@ -10,13 +10,16 @@ import (
 )
 
 const (
-	ErrStatusCannotReadBody        = "Request body is not readable"
-	ErrStatusInvalidJSON           = "Invlalid json schema"
-	ErrStatusDatabaseErr           = "Error while interacting with database"
-	ErrStatusUserExists            = "User with this login already exists"
-	ErrStatusRegisterUserNotExists = "User with this id doesn't exist"
-	ErrStatusInvalidPhotoURL       = "Sent photo url is invalid"
+	ErrStatusCannotReadBody     = "Request body is not readable"
+	ErrStatusInvalidJSON        = "Invlalid json schema"
+	ErrStatusDatabaseErr        = "Error while interacting with database"
+	ErrStatusUserExists         = "User with this login already exists"
+	ErrStatusLoginUserNotExists = "User with this id doesn't exist"
+	ErrStatusInvalidPhotoURL    = "Sent photo url is not valid"
+	ErrStatusWrongPassword      = "Wrong password"
 )
+
+const BcryptCost = 10
 
 type HandlersServer struct {
 	Address  string
