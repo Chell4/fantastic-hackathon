@@ -11,6 +11,15 @@ import (
 	"gorm.io/gorm"
 )
 
+const dbInitSchema = `
+	CREATE TABLE IF NOT EXISTS users (
+		id uuid PRIMARY KEY
+		login TEXT
+		email TEXT
+		pass_hash bytea
+	);
+`
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -33,8 +42,10 @@ func main() {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Unable to connect to db:", err)
 	}
+
+	db.Exec(dbInitSchema)
 
 	s := NewServer("localhost:8080", db)
 
