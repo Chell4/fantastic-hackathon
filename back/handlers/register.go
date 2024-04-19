@@ -26,10 +26,12 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Fatalln("Enable to read data: ", err)
+		return
 	} else {
 		err = json.Unmarshal(body, &resp)
 		if err != nil {
 			log.Fatalln("Enable to convert data to json: ", err)
+			return
 		}
 	}
 	var cnt int64
@@ -46,5 +48,6 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 		})
 	} else {
 		log.Fatalln("User with current phone number already exist.")
+		return
 	}
 }

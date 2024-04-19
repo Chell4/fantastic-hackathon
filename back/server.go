@@ -52,5 +52,3 @@ func (s *Server) StartServer() error {
 
 	return nil
 }
-
-func someActions() {}
