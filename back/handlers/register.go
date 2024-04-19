@@ -11,8 +11,6 @@ const (
 	ErrStatusUserExists     = "User with this login already exists"
 )
 
-const BcryptCost = 10
-
 type RegisterRequest struct {
 	Login     string `json:"login"`
 	Passwords string `json:"password"`
@@ -23,4 +21,5 @@ type RegisterResponse struct {
 }
 
 func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) {
+
 }
