@@ -5,14 +5,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"time"
-)
-
-const (
-	ErrStatusCannotReadBody = "Request body is not readable"
-	ErrStatusInvalidJSON    = "Invlalid json schema"
-	ErrStatusDatabaseErr    = "Error while interacting with database"
-	ErrStatusUserExists     = "User with this login already exists"
 )
 
 const BcryptCost = 10
@@ -46,6 +38,6 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 	if cnt == 0 {
 		log.Fatalln("User with this ID doesn`t exist.")
 	} else {
-		s.DB.Model(&User{}).Where("google_id = ?", resp.GoogleID).Updates(User{FirstName: resp.FirstName, SecondName: &resp.SecondName, LastName: resp.LastName, PictureUrl: &resp.PicturePath, UpdatedAt: time.Now()})
+		s.DB.Model(&User{}).Where("google_id = ?", resp.GoogleID).Updates(User{FirstName: &resp.FirstName, SecondName: &resp.SecondName, LastName: &resp.LastName, PicturePath: &resp.PicturePath})
 	}
 }
