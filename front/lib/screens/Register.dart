@@ -2,15 +2,13 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
-import 'dart:html' as html;
 import 'package:go_router/go_router.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iosish_shaker/iosish_shaker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_text_fields/material_text_fields.dart';
 import 'package:material_text_fields/theme/material_text_field_theme.dart';
 import 'package:material_text_fields/utils/form_validation.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 
 import '../utils/Validation.dart';
 
@@ -29,6 +27,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
   final ShakerController shakeController = ShakerController();
 
   late final AnimationController _gifController;
+
+  final PhoneController phoneController = PhoneController(initialValue: PhoneNumber.parse("+7"));
 
   @override
   void initState() {
@@ -68,42 +68,36 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                                 // Lottie file and start the animation.
                                 _gifController
                                   ..duration = composition.duration
-                                  ..forward();
+                                  ..forward()
+                                  ..repeat();
                               },
-                              filterQuality: FilterQuality.medium
+                              filterQuality: FilterQuality.medium,
                           )
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.05,
                           ),
-                          MaterialTextField(
-                            keyboardType: TextInputType.text,
-                            hint: "Email",
-                            labelText: "Email",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
+                          PhoneFormField(
+                            controller: phoneController,
+                            validator: PhoneValidator.compose(
+                                [PhoneValidator.required(context), PhoneValidator.validMobile(context)]),
+                            enabled: true,
+                            isCountrySelectionEnabled: true,
+                            isCountryButtonPersistent: true,
+
+                            countryButtonStyle: CountryButtonStyle(
+                                showDropdownIcon: false,
+                              showDialCode: true,
+                              showFlag: true,
+                              showIsoCode: false
                             ),
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.alternate_email),
-                            validator: FormValidation.emailTextField,
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.025,
-                          ),
-                          MaterialTextField(
-                            keyboardType: TextInputType.text,
-                            hint: "Login",
-                            labelText: "Login",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
-                            ),
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.person),
-                            validator: Validation.requiredLogin,
+
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            )
+                            // + all parameters of TextField
+                            // + all parameters of FormField
+                            // ...
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.025,
@@ -121,6 +115,60 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                             textInputAction: TextInputAction.next,
                             prefixIcon: const Icon(Icons.lock),
                             validator: FormValidation.requiredTextField,
+                          ),
+                          SizedBox(
+                            height: min(maxWidth, constraints.maxWidth) * 0.025,
+                          ),
+                          Card(
+                            clipBehavior: Clip.none,
+                            borderOnForeground: false,
+                            shadowColor: Colors.transparent,
+                            color: Colors.transparent,
+                            surfaceTintColor: Colors.transparent,
+                            margin: EdgeInsets.zero,
+                            child: Wrap(
+                              clipBehavior: Clip.hardEdge,
+                              direction: Axis.horizontal,
+                              spacing: 8.0,
+                              runSpacing: 0.0,
+                              children: [
+                                SizedBox(
+                                  width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 4,
+                                  child: MaterialTextField(
+                                    keyboardType: TextInputType.visiblePassword,
+                                    obscureText: true,
+                                    hint: "First Name",
+                                    labelText: "First Name",
+                                    theme: FilledOrOutlinedTextTheme(
+                                      enabledColor: Colors.grey,
+                                      focusedColor: Colors.grey.shade400,
+                                      fillColor: Colors.transparent,
+                                    ),
+
+                                    textInputAction: TextInputAction.next,
+                                    validator: FormValidation.requiredTextField,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 4,
+                                  child: MaterialTextField(
+                                    keyboardType: TextInputType.visiblePassword,
+                                    obscureText: true,
+                                    hint: "Last Name",
+                                    labelText: "Last Name",
+                                    theme: FilledOrOutlinedTextTheme(
+                                      enabledColor: Colors.grey,
+                                      focusedColor: Colors.grey.shade400,
+                                      fillColor: Colors.transparent,
+                                    ),
+
+                                    textInputAction: TextInputAction.next,
+                                    validator: FormValidation.requiredTextField,
+                                  ),
+                                )
+                              ],
+
+                            ),
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.05,
@@ -147,7 +195,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                           SizedBox(
                             height: constraints.maxHeight * 0.15,
                           ),
-                          Text("Natus Coders for Oggetto, 2024")
+                          const Text("Natus Coders for Oggetto, 2024")
                         ],
                       ),
                     ),
