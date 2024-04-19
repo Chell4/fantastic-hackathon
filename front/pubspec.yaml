@@ -39,6 +39,8 @@ dependencies:
   material_text_fields: ^1.0.3
   gif: ^2.3.0
   iosish_shaker: ^1.0.0
+  lottie: ^3.1.0
+  url_strategy: ^0.2.0
 
 dev_dependencies:
   flutter_test:
@@ -93,3 +95,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/1.5x/
+    - assets/2.0x/
+    - assets/3.0x/
+    - assets/4.0x/
