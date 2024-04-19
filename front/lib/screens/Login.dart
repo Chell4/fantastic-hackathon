@@ -2,13 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iosish_shaker/iosish_shaker.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:material_text_fields/material_text_fields.dart';
 import 'package:material_text_fields/theme/material_text_field_theme.dart';
 import 'package:material_text_fields/utils/form_validation.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 
 import '../utils/Validation.dart';
 
@@ -18,10 +18,6 @@ class Login extends StatefulWidget{
 }
 
 class _LoginState extends State<Login> with TickerProviderStateMixin  {
-
-  GoogleSignInAccount? _currentUser;
-  String _contactText = '';
-
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
@@ -30,6 +26,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
   final ShakerController shakeController = ShakerController();
 
   late final AnimationController _gifController;
+
+  final PhoneController phoneController = PhoneController(initialValue: PhoneNumber.parse("+7"));
 
   @override
   void initState() {
@@ -74,24 +72,33 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                                   ..repeat()
                                 ;
                               },
-                              filterQuality: FilterQuality.medium
+                              filterQuality: FilterQuality.low
                           )
                           ),
                           SizedBox(
                             height: constraints.maxHeight * 0.05,
                           ),
-                          MaterialTextField(
-                            keyboardType: TextInputType.text,
-                            hint: "Login",
-                            labelText: "Login",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
-                            ),
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.person),
-                            validator: Validation.requiredLogin,
+                          PhoneFormField(
+                              controller: phoneController,
+                              validator: PhoneValidator.compose(
+                                  [PhoneValidator.required(context), PhoneValidator.validMobile(context)]),
+                              enabled: true,
+                              isCountrySelectionEnabled: true,
+                              isCountryButtonPersistent: true,
+
+                              countryButtonStyle: CountryButtonStyle(
+                                  showDropdownIcon: false,
+                                  showDialCode: true,
+                                  showFlag: true,
+                                  showIsoCode: false
+                              ),
+
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                              )
+                            // + all parameters of TextField
+                            // + all parameters of FormField
+                            // ...
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.025,
