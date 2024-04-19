@@ -33,6 +33,8 @@ func (s *Server) endpoints() Endpoints {
 		`/auth/logout`:   s.HandleLogout,
 
 		`/profile`: s.HandleProfile,
+
+		`/media/{img_name}`: s.HandleMedia,
 	}
 }
 
