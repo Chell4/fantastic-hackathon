@@ -2,15 +2,13 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
-import 'dart:html' as html;
 import 'package:go_router/go_router.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iosish_shaker/iosish_shaker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_text_fields/material_text_fields.dart';
 import 'package:material_text_fields/theme/material_text_field_theme.dart';
 import 'package:material_text_fields/utils/form_validation.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 
 import '../utils/Validation.dart';
 
@@ -29,6 +27,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
   final ShakerController shakeController = ShakerController();
 
   late final AnimationController _gifController;
+
+  final PhoneController phoneController = PhoneController(initialValue: PhoneNumber.parse("+7"));
 
   @override
   void initState() {
@@ -68,42 +68,36 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                                 // Lottie file and start the animation.
                                 _gifController
                                   ..duration = composition.duration
-                                  ..forward();
+                                  ..forward()
+                                  ..repeat();
                               },
-                              filterQuality: FilterQuality.medium
+                              filterQuality: FilterQuality.medium,
                           )
                           ),
                           SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.1,
+                            height: min(maxWidth, constraints.maxWidth) * 0.05,
                           ),
-                          MaterialTextField(
-                            keyboardType: TextInputType.text,
-                            hint: "Email",
-                            labelText: "Email",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
+                          PhoneFormField(
+                            controller: phoneController,
+                            validator: PhoneValidator.compose(
+                                [PhoneValidator.required(context), PhoneValidator.validMobile(context)]),
+                            enabled: true,
+                            isCountrySelectionEnabled: true,
+                            isCountryButtonPersistent: true,
+
+                            countryButtonStyle: CountryButtonStyle(
+                                showDropdownIcon: false,
+                              showDialCode: true,
+                              showFlag: true,
+                              showIsoCode: false
                             ),
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.alternate_email),
-                            validator: FormValidation.emailTextField,
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.025,
-                          ),
-                          MaterialTextField(
-                            keyboardType: TextInputType.text,
-                            hint: "Login",
-                            labelText: "Login",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
-                            ),
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.person),
-                            validator: Validation.requiredLogin,
+
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            )
+                            // + all parameters of TextField
+                            // + all parameters of FormField
+                            // ...
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.025,
@@ -123,33 +117,71 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                             validator: FormValidation.requiredTextField,
                           ),
                           SizedBox(
+                            height: min(maxWidth, constraints.maxWidth) * 0.025,
+                          ),
+                          Card(
+                            clipBehavior: Clip.none,
+                            borderOnForeground: false,
+                            shadowColor: Colors.transparent,
+                            color: Colors.transparent,
+                            surfaceTintColor: Colors.transparent,
+                            margin: EdgeInsets.zero,
+                            child: Wrap(
+                              clipBehavior: Clip.hardEdge,
+                              direction: Axis.horizontal,
+                              spacing: 8.0,
+                              runSpacing: 0.0,
+                              children: [
+                                SizedBox(
+                                  width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 4,
+                                  child: MaterialTextField(
+                                    keyboardType: TextInputType.visiblePassword,
+                                    obscureText: true,
+                                    hint: "First Name",
+                                    labelText: "First Name",
+                                    theme: FilledOrOutlinedTextTheme(
+                                      enabledColor: Colors.grey,
+                                      focusedColor: Colors.grey.shade400,
+                                      fillColor: Colors.transparent,
+                                    ),
+
+                                    textInputAction: TextInputAction.next,
+                                    validator: FormValidation.requiredTextField,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 4,
+                                  child: MaterialTextField(
+                                    keyboardType: TextInputType.visiblePassword,
+                                    obscureText: true,
+                                    hint: "Last Name",
+                                    labelText: "Last Name",
+                                    theme: FilledOrOutlinedTextTheme(
+                                      enabledColor: Colors.grey,
+                                      focusedColor: Colors.grey.shade400,
+                                      fillColor: Colors.transparent,
+                                    ),
+
+                                    textInputAction: TextInputAction.next,
+                                    validator: FormValidation.requiredTextField,
+                                  ),
+                                )
+                              ],
+
+                            ),
+                          ),
+                          SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.05,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: onSubmitBtnPressed,
-                                child: Text('Register', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
+                          ElevatedButton(
+                            onPressed: onSubmitBtnPressed,
+                            child: Text('Register', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              ElevatedButton.icon(
-                                onPressed: signInWithGoogle,
-                                icon: Icon(Icons.account_box),
-                                label: Text('Sign in with Google'),
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.025,
@@ -158,8 +190,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                             onTap: () {
                               context.go("/login");
                             },
-                            child: const Text("Sign In"),
-                          )
+                            child: Text("Or sign in...", style: Theme.of(context).textTheme.bodyMedium!.copyWith(decoration: TextDecoration.underline),),
+                          ),
+                          SizedBox(
+                            height: constraints.maxHeight * 0.15,
+                          ),
+                          const Text("Natus Coders for Oggetto, 2024")
                         ],
                       ),
                     ),
@@ -178,32 +214,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
       // TO BACKEND
     } else {
       shakeController.shake();
-    }
-  }
-
-  Future<void> signInWithGoogle() async {
-    try {
-      // Создание экземпляра GoogleSignIn
-      GoogleSignIn googleSignIn = GoogleSignIn();
-
-      // Получение учетных данных пользователя от Google
-      GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-
-      // Проверка на отмену аутентификации
-      if (googleSignInAccount == null) return;
-
-      // Получение аутентификационных данных
-      GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
-
-      // Получение токена доступа и ID токена
-      String accessToken = googleSignInAuthentication.accessToken!;
-      String idToken = googleSignInAuthentication.idToken!;
-
-      // Действия после успешной аутентификации
-      // Например, отправка данных на сервер или навигация пользователя
-    } catch (error) {
-      // Обработка ошибок аутентификации
-      print('Error signing in with Google: $error');
     }
   }
 }
