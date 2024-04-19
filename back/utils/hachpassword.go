@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -24,8 +25,7 @@ func hash() {
 			http.Error(w, "Ошибка при генерации хэша пароля", http.StatusInternalServerError)
 			return
 		}
-
-		log.Fprintf(w, "Хэш пароля: %s", string(hashedPassword))
+		log.Println(w, "Хэш пароля: %s", string(hashedPassword))
 	})
 
 	log.Println("Сервер запущен на http://localhost:8080")

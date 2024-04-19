@@ -33,6 +33,8 @@ github.com/joho/godotenv
 # github.com/patrickmn/go-cache v2.1.0+incompatible
 ## explicit
 github.com/patrickmn/go-cache
+# github.com/robfig/cron/v3 v3.0.1
+## explicit; go 1.12
 # golang.org/x/crypto v0.22.0
 ## explicit; go 1.18
 golang.org/x/crypto/bcrypt
