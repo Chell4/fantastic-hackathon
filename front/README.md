@@ -2,8 +2,8 @@
 
 ### TODO: 
 
-- [ ] Login Page
-- [ ] Register Page
+- [x] Login Page
+- [x] Register Page
 - [ ] Home Page
 - [ ] Backend Connection
 - [ ] etc.
