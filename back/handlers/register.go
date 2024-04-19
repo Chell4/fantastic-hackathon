@@ -38,6 +38,11 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 	if cnt == 0 {
 		log.Fatalln("User with this ID doesn`t exist.")
 	} else {
-		s.DB.Model(&User{}).Where("google_id = ?", resp.GoogleID).Updates(User{FirstName: &resp.FirstName, SecondName: &resp.SecondName, LastName: &resp.LastName, PicturePath: &resp.PicturePath})
+		s.DB.Model(&User{}).Where("google_id = ?", resp.GoogleID).Updates(User{
+			FirstName:   &resp.FirstName,
+			SecondName:  &resp.SecondName,
+			LastName:    &resp.LastName,
+			PicturePath: &resp.PicturePath,
+		})
 	}
 }
