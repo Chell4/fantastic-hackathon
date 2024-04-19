@@ -1,15 +1,21 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:front/utils/Validation.dart';
-import 'package:gif/gif.dart';
-import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iosish_shaker/iosish_shaker.dart';
 import 'package:lottie/lottie.dart';
-import 'package:material_text_fields/material_text_fields.dart';
-import 'package:material_text_fields/theme/material_text_field_theme.dart';
-import 'package:material_text_fields/utils/form_validation.dart';
-import 'dart:html' as html;
+
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/people/v1.dart';
+import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
+
+
+final GoogleSignIn _googleSignIn = GoogleSignIn(
+  // Optional clientId
+  // clientId: '[YOUR_OAUTH_2_CLIENT_ID]',
+  clientId: "1026876450553-o5nn60aogfqv9cto5ufcgaqf1u9f1c5d.apps.googleusercontent.com",
+  scopes: <String>[PeopleServiceApi.userinfoProfileScope, PeopleServiceApi.userinfoEmailScope, ],
+);
 
 class Login extends StatefulWidget{
   @override
@@ -18,6 +24,9 @@ class Login extends StatefulWidget{
 
 class _LoginState extends State<Login> with TickerProviderStateMixin  {
 
+  GoogleSignInAccount? _currentUser;
+  String _contactText = '';
+
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
@@ -25,13 +34,44 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
 
   final ShakerController shakeController = ShakerController();
 
-  late final GifController _gifController;
+  late final AnimationController _gifController;
 
   @override
   void initState() {
-    _gifController = GifController(vsync: this);
+    _gifController = AnimationController(vsync: this);
+
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      setState(() {
+        _currentUser = account;
+      });
+      if (_currentUser != null) {
+
+        WidgetsBinding.instance.addPostFrameCallback((_){
+          _asyncMethod();
+        });
+
+      }
+    });
+    _googleSignIn.signInSilently();
+
     super.initState();
   }
+
+
+  Future<void> _asyncMethod() async {
+    print(await _currentUser!.authentication);
+    print(await _currentUser!.authHeaders);
+  }
+
+  Future<void> _handleSignIn() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print(error); // ignore: avoid_print
+    }
+  }
+
+  Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +85,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
 
             return Center(
               child: Container(
-                width: min(maxWidth, constraints.maxWidth),
+                width: max(maxWidth, constraints.maxWidth),
                 alignment: Alignment.center,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -55,60 +95,70 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                       child: Column(
                         children: [
                           Shaker(controller: shakeController, child:
-                          Lottie.asset(
-                              "Key.json",
+                            Lottie.asset(
+                              "Cup.json",
                               controller: _gifController,
                               width: min(maxWidth, constraints.maxWidth) * 0.6,
                               frameRate: const FrameRate(60),
+                              repeat: true,
                               onLoaded: (composition) {
                                 // Configure the AnimationController with the duration of the
                                 // Lottie file and start the animation.
                                 _gifController
                                   ..duration = composition.duration
-                                  ..forward();
+                                  ..forward()
+                                  ..repeat()
+                                ;
                               },
                               filterQuality: FilterQuality.medium
                           )
                           ),
                           SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.15,
+                            height: constraints.maxHeight * 0.05,
                           ),
-                          MaterialTextField(
-                            keyboardType: TextInputType.text,
-                            hint: "Login",
-                            labelText: "Login",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
-                            ),
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.person),
-                            validator: Validation.requiredLogin,
-                          ),
+                          // MaterialTextField(
+                          //   keyboardType: TextInputType.text,
+                          //   hint: "Login",
+                          //   labelText: "Login",
+                          //   theme: FilledOrOutlinedTextTheme(
+                          //     enabledColor: Colors.grey,
+                          //     focusedColor: Colors.grey.shade400,
+                          //     fillColor: Colors.transparent,
+                          //   ),
+                          //   textInputAction: TextInputAction.next,
+                          //   prefixIcon: const Icon(Icons.person),
+                          //   validator: Validation.requiredLogin,
+                          // ),
+                          // SizedBox(
+                          //   height: min(maxWidth, constraints.maxWidth) * 0.025,
+                          // ),
+                          // MaterialTextField(
+                          //   keyboardType: TextInputType.visiblePassword,
+                          //   obscureText: true,
+                          //   hint: "Password",
+                          //   labelText: "Password",
+                          //   theme: FilledOrOutlinedTextTheme(
+                          //     enabledColor: Colors.grey,
+                          //     focusedColor: Colors.grey.shade400,
+                          //     fillColor: Colors.transparent,
+                          //   ),
+                          //   textInputAction: TextInputAction.next,
+                          //   prefixIcon: const Icon(Icons.lock),
+                          //   validator: FormValidation.requiredTextField,
+                          // ),
+                          // SizedBox(
+                          //   height: min(maxWidth, constraints.maxWidth) * 0.05,
+                          // ),
+                          Text("Welcome!", style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                            fontWeight: FontWeight.bold
+                          ),),
                           SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.025,
+                            height: constraints.maxHeight * 0.02,
                           ),
-                          MaterialTextField(
-                            keyboardType: TextInputType.visiblePassword,
-                            obscureText: true,
-                            hint: "Password",
-                            labelText: "Password",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
-                            ),
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.lock),
-                            validator: FormValidation.requiredTextField,
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.05,
-                          ),
-                          ElevatedButton(
-                            onPressed: onSubmitBtnPressed,
-                            child: Text('Login', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
+                          ElevatedButton.icon(
+                            onPressed: _handleSignIn,
+                            icon: Icon(Icons.account_box),
+                            label: Text('Sign with Google'),
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
                               shape: RoundedRectangleBorder(
@@ -117,14 +167,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                             ),
                           ),
                           SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.025,
+                            height: constraints.maxHeight * 0.3,
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              context.go("/register");
-                            },
-                            child: const Text("Register"),
-                          )
+                          Text("Natus Coders for Oggetto, 2024")
                         ],
                       ),
                     ),

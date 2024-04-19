@@ -41,6 +41,10 @@ dependencies:
   iosish_shaker: ^1.0.0
   lottie: ^3.1.0
   url_strategy: ^0.2.0
+  google_sign_in: ^6.2.1
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  googleapis_auth: ^1.6.0
+  googleapis: ^13.1.0
 
 dev_dependencies:
   flutter_test:
@@ -81,9 +85,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-   - family: Inter
+   - family: Montserrat
      fonts:
-       - asset: fonts/Inter-VariableFont.ttf
+       - asset: fonts/Montserrat-VariableFont_wght.ttf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
