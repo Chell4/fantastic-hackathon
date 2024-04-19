@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	. "back/handlers"
+
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -33,7 +35,17 @@ func main() {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Unable to connect to db:", err)
+	}
+
+	err = db.AutoMigrate(&User{})
+	if err != nil {
+		log.Fatalln("Unable to automigrate db:", err)
+	}
+
+	err = db.Migrator().RenameTable(&User{}, "users")
+	if err != nil {
+		log.Fatalln("Unable to rename table:", err)
 	}
 
 	s := NewServer("localhost:8080", db)

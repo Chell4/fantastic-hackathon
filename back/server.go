@@ -25,9 +25,9 @@ func (s *Server) endpoints() Endpoints {
 		`/ping`:            s.HandlePing,
 		`/ping/{pong:\w*}`: s.HandlePing,
 
-		`/auth/sign-in`:  s.HandlePing,
-		`/auth/register`: s.HandlePing,
-		`/auth/logout`:   s.HandlePing,
+		`/auth/login`:    s.HandleLogin,
+		`/auth/register`: s.HandleRegister,
+		`/auth/logout`:   s.HandleLogout,
 
 		`/{username:[^/]{5,}}`:              s.HandleUser,
 		`/{username:[^/]{5,}}/{action:\w*}`: s.HandleUser,
