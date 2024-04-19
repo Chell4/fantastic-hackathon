@@ -8,6 +8,8 @@ import 'package:material_text_fields/material_text_fields.dart';
 import 'package:material_text_fields/theme/material_text_field_theme.dart';
 import 'package:material_text_fields/utils/form_validation.dart';
 
+import '../utils/Validation.dart';
+
 class Register extends StatefulWidget{
   @override
   State<Register> createState() => _RegisterState();
@@ -90,7 +92,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                           ),
                           textInputAction: TextInputAction.next,
                           prefixIcon: const Icon(Icons.person),
-                          validator: FormValidation.requiredTextField,
+                          validator: Validation.requiredLogin,
                         ),
                         SizedBox(
                           height: min(maxWidth, constraints.maxWidth) * 0.025,

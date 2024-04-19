@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:front/utils/Validation.dart';
 import 'package:gif/gif.dart';
 import 'package:iosish_shaker/iosish_shaker.dart';
 import 'package:material_text_fields/material_text_fields.dart';
@@ -70,7 +71,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                           ),
                           textInputAction: TextInputAction.next,
                           prefixIcon: const Icon(Icons.person),
-                          validator: FormValidation.requiredTextField,
+                          validator: Validation.requiredLogin,
                         ),
                         SizedBox(
                           height: min(maxWidth, constraints.maxWidth) * 0.025,
