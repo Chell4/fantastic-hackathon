@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.black45),
         useMaterial3: true,
-        fontFamily: "Inter",
+        fontFamily: "Montserrat",
         textTheme: Theme.of(context).textTheme.apply(
           fontSizeFactor: 1.1,
           fontSizeDelta: 1.5,
@@ -42,14 +42,13 @@ class MyHomePage extends StatefulWidget {
 final GoRouter router = GoRouter(routes: [
   GoRoute(path: '/', name: "Home", builder: (_, __) => MyHomePage()),
   GoRoute(path: '/login', name: "Login", builder: (_, __) => Login()),
-  GoRoute(path: '/register', name: "Register", builder: (_, __) => Register())
   ], navigatorKey: navigatorKey,
     redirect: (context, state) async {
-      final requireAuth = state.fullPath != "/login" && state.fullPath != "/register";
+      final requireAuth = state.fullPath != "/login";
       final jwtToken = null; // TODO
 
       if (requireAuth && (jwtToken == null || jwtToken.isEmpty)) {
-        return '/login';
+        return '/login'; //
       }
 
       return null;
