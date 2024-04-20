@@ -54,6 +54,8 @@ func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		s.HandleMediaGet(w, r)
+	case "POST":
+		s.HandleMediaPost(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
