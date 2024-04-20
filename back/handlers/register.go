@@ -17,6 +17,7 @@ type RegisterRequest struct {
 }
 
 func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	switch r.Method {
 	case "POST":
 		s.HandleRegisterPost(w, r)

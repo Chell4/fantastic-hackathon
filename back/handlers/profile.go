@@ -27,6 +27,7 @@ type ProfilePostRequest struct {
 }
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	switch r.Method {
 	case "GET":
 		s.HandleProfileGet(w, r)

@@ -20,6 +20,7 @@ type LoginResponse struct {
 }
 
 func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	switch r.Method {
 	case "POST":
 		s.HandleLoginPost(w, r)

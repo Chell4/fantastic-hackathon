@@ -12,6 +12,7 @@ type ScheduleRequest struct {
 }
 
 func (s *HandlersServer) HandleSchedule(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	switch r.Method {
 	case "POST":
 		s.HandleSchedulePost(w, r)

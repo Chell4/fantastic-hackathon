@@ -53,6 +53,10 @@ type User struct {
 	UpdatedAt time.Time
 }
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 func ErrorMap(w http.ResponseWriter, code int, body interface{}) {
 	bodyJSON, err := json.Marshal(body)
 	if err != nil {

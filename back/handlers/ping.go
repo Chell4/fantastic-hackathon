@@ -7,6 +7,7 @@ import (
 )
 
 func (s *HandlersServer) HandlePing(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	switch r.Method {
 	case "GET":
 		s.HandlePingGet(w, r)
