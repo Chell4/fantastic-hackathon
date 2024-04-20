@@ -77,7 +77,9 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = s.DB.Table("users").Where("id = ?", user.ID).Update("picture_path", string(hashData)).Error
+	println(hashData)
+
+	err = s.DB.Table("users").Where("id = ?", user.ID).Update("picture_path").Error
 	if CheckServerError(w, err) {
 		return
 	}
