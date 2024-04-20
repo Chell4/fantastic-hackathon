@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -67,11 +68,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
         final response = await http.post(
           Uri.parse(BACKEND + 'auth/login'),
           headers: <String, String>{
-            'Content-Type': 'application/json', // Устанавливаем заголовок Content-Type
-            "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-            "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
-            "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+            HttpHeaders.contentTypeHeader: 'application/json',
           },
           body: json.encode(data), // Передаем JSON-тело запроса
         );
@@ -251,7 +248,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                             },
                           ),
                           SizedBox(
-                            height: widget.ref != null ? constraints.maxHeight * 0.10 : constraints.maxHeight * 0.15,
+                            height: constraints.maxHeight * 0.05,
                           ),
                           Text("Natus Coders for Oggetto, 2024")
                         ],

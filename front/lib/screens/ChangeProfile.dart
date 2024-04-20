@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
+import 'dart:io' as io;
+import 'dart:io';
 import 'dart:math';
 
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:front/main.dart';
@@ -27,10 +30,10 @@ class ChangeProfile extends StatefulWidget {
 
 class _ChangeProfileState extends State<ChangeProfile>
     with TickerProviderStateMixin {
-  final GlobalKey<FormState> _key = GlobalKey<FormState>();
+  final GlobalKey<FormState> _keey = GlobalKey<FormState>();
 
-  final TextEditingController _firstController = TextEditingController();
-  final TextEditingController _lastController = TextEditingController();
+  final TextEditingController _firstController = TextEditingController(text: MyHomePage.instance.currentUser!.firstName!);
+  final TextEditingController _lastController = TextEditingController(text: MyHomePage.instance.currentUser!.lastName!);
   final TextEditingController _passwordController = TextEditingController();
 
   final ShakerController shakeController = ShakerController();
@@ -39,7 +42,7 @@ class _ChangeProfileState extends State<ChangeProfile>
 
   late final AnimationController _gifController;
 
-  final PhoneController phoneController = PhoneController(initialValue: PhoneNumber.parse("+7"));
+  final PhoneController phoneController = PhoneController(initialValue: PhoneNumber.parse(MyHomePage.instance!.currentUser!.phone!),);
 
   String? phoneError = null;
   String? passError = null;
@@ -61,59 +64,37 @@ class _ChangeProfileState extends State<ChangeProfile>
   onSubmitBtnPressed() async {
     phoneError = null;
     passError = null;
-    if (_key.currentState?.validate() == true) {
-      _gifController.forward(from: 0.0);
-      try {
-        Map data = {
-          "phone": "+${phoneController.value.countryCode}${phoneController.value.nsn}",
-          "password": _passwordController.text,
-          "first_name": _firstController.text,
-          "last_name": _lastController.text,
-        };
+    try {
+      Map data = {
+        "phone": "+${phoneController.value.countryCode}${phoneController.value.nsn}",
+        "first_name": _firstController.text,
+        "last_name": _lastController.text,
+      };
 
-        print(json.encode(data));
+      if (_passwordController.text.isNotEmpty && _passwordController.text.length >= 8)
+        data["password"] = _passwordController.text;
 
-        final response = await http.post(
-          Uri.parse(BACKEND + 'profile'),
-          headers: <String, String>{
-            'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
-          },
-          body: json.encode(data),
-        );
-        var dataa = response;
+      print(json.encode(data));
 
-        try {
-          var jsonResp = jsonDecode(dataa.body) as Map<String, dynamic>;
-          if (jsonResp.containsKey("reason")) {
-            switch (jsonResp["reason"]) {
-              case "phone_exist":
-                {
-                  phoneError = jsonResp["explain"];
-                  var value = phoneController.value;
-                  phoneController.value = phoneController.initialValue;
-                  phoneController.value = value;
-                  break;
-                }
-            }
-            shakeController.shake();
-            _key.currentState?.validate();
-            return;
-          }
-        } catch (e) {
-          print(e);
-          return;
-        }
-      } catch (e) {
-        print(e);
+      final response = await http.post(
+        Uri.parse(BACKEND + 'profile'),
+        headers: <String, String>{
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
+        },
+        body: json.encode(data),
+      );
+      var dataa = response;
+
+      print("!-!-!-");
+      if (response.statusCode == HttpStatus.ok) {
+        context.pop();
+        context.pushReplacement("/");
       }
-      context.go("/login", extra: {"ref": "register"});
-    } else {
-      shakeController.shake();
+    } catch (e) {
+      print(e);
     }
+    // context.go("/login", extra: {"ref": "register"});
   }
 
   @override
@@ -165,7 +146,7 @@ class _ChangeProfileState extends State<ChangeProfile>
                                   onError: (String? ev) =>
                                       print('Error: $ev'),
                                   onDrop: (ev) =>
-                                      print('Drop: ${(ev as File).type}'),
+                                      print('Drop: ${(ev as html.File).type}'),
                                 ),
                                 Center(
                                   child: Text("Drop image here"),
@@ -220,7 +201,6 @@ class _ChangeProfileState extends State<ChangeProfile>
                           errorText: passError,
                           textInputAction: TextInputAction.next,
                           prefixIcon: const Icon(Icons.lock),
-                          validator: passValidator,
                         ),
                         SizedBox(
                           height: min(maxWidth, constraints.maxWidth) * 0.025,
@@ -251,7 +231,6 @@ class _ChangeProfileState extends State<ChangeProfile>
                                     fillColor: Colors.transparent,
                                   ),
                                   textInputAction: TextInputAction.next,
-                                  validator: FormValidation.requiredTextField,
                                 ),
                               ),
                               SizedBox(
@@ -267,7 +246,6 @@ class _ChangeProfileState extends State<ChangeProfile>
                                     fillColor: Colors.transparent,
                                   ),
                                   textInputAction: TextInputAction.next,
-                                  validator: FormValidation.requiredTextField,
                                 ),
                               )
                             ],
@@ -278,6 +256,12 @@ class _ChangeProfileState extends State<ChangeProfile>
                         ),
                         ElevatedButton(
                           onPressed: onSubmitBtnPressed,
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                           child: Text(
                             'Apply Changes',
                             textScaler: TextScaler.linear(1.2),
@@ -285,12 +269,6 @@ class _ChangeProfileState extends State<ChangeProfile>
                                 .textTheme
                                 .bodyLarge
                                 ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
                           ),
                         ),
                       ],
