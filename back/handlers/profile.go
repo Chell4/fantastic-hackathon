@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type ProfileGetResponse struct {
@@ -21,6 +23,7 @@ type ProfilePostRequest struct {
 	LastName    string `json:"last_name"`
 	Phone       string `json:"phone"`
 	PicturePath string `json:"picture_path"`
+	Password    string `json:"password"`
 }
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
@@ -98,6 +101,15 @@ func (s *HandlersServer) HandleProfilePost(w http.ResponseWriter, r *http.Reques
 	}
 	if req.PicturePath != "" {
 		user.PicturePath = &req.PicturePath
+	}
+	if req.Password != "" {
+		user.PasswordHash, err = bcrypt.GenerateFromPassword(
+			[]byte(req.Password)[:min(len(req.Password), 72)],
+			BcryptCost,
+		)
+		if CheckServerError(w, err) {
+			return
+		}
 	}
 
 	err = s.DB.Table("users").Save(user).Error
