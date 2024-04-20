@@ -72,10 +72,14 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	}
 	hashData := hash.Sum(nil)
 
+	println("hash write ok")
+
 	err = os.WriteFile("media/"+base64.StdEncoding.EncodeToString(hashData), picData, 0644)
 	if CheckServerError(w, err) {
 		return
 	}
+
+	println("writefile ok")
 
 	println(hashData)
 
