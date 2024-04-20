@@ -39,7 +39,7 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var cntUsers int64
-	err = s.DB.Where("phone = ?", req.Phone).Count(&cntUsers).Error
+	err = s.DB.Table("users").Where("phone = ?", req.Phone).Count(&cntUsers).Error
 	if CheckServerError(w, err) {
 		return
 	}
