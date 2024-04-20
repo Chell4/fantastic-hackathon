@@ -17,6 +17,7 @@ const (
 	ErrStatusLoginUserNotExists = "User with this id doesn't exist"
 	ErrStatusInvalidPhotoURL    = "Sent photo url is not valid"
 	ErrStatusWrongPassword      = "Wrong password"
+	ErrStatusInvalidMedia       = "Invalid media path"
 )
 
 const BcryptCost = 10
