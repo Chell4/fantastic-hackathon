@@ -28,11 +28,12 @@ func (s *HandlersServer) HandleSchedule(w http.ResponseWriter, r *http.Request) 
 
 	if s.CronProcess != nil {
 		s.Cron.Remove(*s.CronProcess)
-		id, err := s.Cron.AddFunc(fmt.Sprintf("CRON_TZ=Europe/Moscow %v", req.Settings), func() {})
-		if err != nil {
-			CheckServerError(w, err)
-		} else {
-			s.CronProcess = &id
-		}
+		s.CronProcess = nil
 	}
+	id, err := s.Cron.AddFunc(fmt.Sprintf("CRON_TZ=Europe/Moscow %v", req.Settings), func() {})
+	if err != nil {
+		CheckServerError(w, err)
+		return
+	}
+	s.CronProcess = &id
 }
