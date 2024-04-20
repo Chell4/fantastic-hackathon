@@ -2,25 +2,27 @@ package handlers
 
 import (
 	"net/http"
-	"strings"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
-func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
-	tokenStr := strings.TrimPrefix(r.Header.Get("Autothorization"), "Bearer ")
+type ProfileResponse struct {
+	FirstName   string  `json:"first_name"`
+	SecondName  *string `json:"second_name"`
+	LastName    string  `json:"last_name"`
+	Phone       string  `json:"phone"`
+	PicturePath *string `json:"picture_path"`
+}
 
-	if tokenStr == "" {
-		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
-			"type":    "token",
-			"reason":  "no_token",
-			"explain": ErrExplainMissingToken,
-		})
+func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
+	user, valid := s.ValidateToken(w, r)
+	if !valid {
 		return
 	}
 
-	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) { return nil, nil })
-	if err != nil {
-
-	}
+	ErrorMap(w, http.StatusOK, ProfileResponse{
+		FirstName:   user.FirstName,
+		SecondName:  user.SecondName,
+		LastName:    user.FirstName,
+		Phone:       user.Phone,
+		PicturePath: user.PicturePath,
+	})
 }
