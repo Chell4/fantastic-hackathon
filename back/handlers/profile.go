@@ -1,14 +1,26 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
+	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+	tokenStr := strings.TrimPrefix(r.Header.Get("Autothorization"), "Bearer ")
 
-	w.Write([]byte(fmt.Sprintf("%v is gay", vars["username"])))
+	if tokenStr == "" {
+		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
+			"type":    "token",
+			"reason":  "no_token",
+			"explain": ErrExplainMissingToken,
+		})
+		return
+	}
+
+	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) { return nil, nil })
+	if err != nil {
+
+	}
 }
