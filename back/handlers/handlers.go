@@ -56,7 +56,7 @@ type User struct {
 }
 
 func CheckServerError(w http.ResponseWriter, err error) bool {
-	if err == nil {
+	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		log.Println(err)
 		return true
