@@ -98,5 +98,6 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 
 	by, err := json.Marshal(Response{Path: hashDataStr})
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(by)
 }
