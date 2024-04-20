@@ -42,7 +42,7 @@ func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request
 	ErrorMap(w, http.StatusOK, ProfileResponse{
 		FirstName:   user.FirstName,
 		SecondName:  secondName,
-		LastName:    user.FirstName,
+		LastName:    user.LastName,
 		Phone:       user.Phone,
 		PicturePath: picturePath,
 	})
