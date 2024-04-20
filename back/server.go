@@ -6,6 +6,7 @@ import (
 	. "back/handlers"
 
 	"github.com/gorilla/mux"
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -13,8 +14,10 @@ type Server struct{ HandlersServer }
 
 func NewServer(address string, db *gorm.DB) Server {
 	return Server{HandlersServer: HandlersServer{
-		Address: address,
-		DB:      db,
+		Address:     address,
+		DB:          db,
+		Cron:        cron.New(),
+		CronProcess: nil,
 	}}
 }
 
@@ -32,6 +35,7 @@ func (s *Server) endpoints() Endpoints {
 		`/profile`: s.HandleProfile,
 
 		`/media/{img_name}`: s.HandleMedia,
+		`/schedule`:         s.HandleSchedule,
 	}
 }
 
