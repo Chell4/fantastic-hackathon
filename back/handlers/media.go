@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
@@ -33,7 +34,13 @@ func (s *HandlersServer) HandleMediaGet(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	pic, err := os.ReadFile("media/" + path)
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+
+	pic, err := os.ReadFile(exPath + "/media/" + path)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
 			"type":    "media",
