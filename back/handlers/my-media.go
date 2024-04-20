@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/md5"
 	"encoding/base64"
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -51,6 +52,10 @@ func (s *HandlersServer) HandleMyMediaGet(w http.ResponseWriter, r *http.Request
 	w.Write(pic)
 }
 
+type Response struct {
+	Path string `json:"path"`
+}
+
 func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Request) {
 	user, valid := s.ValidateToken(w, r)
 	if !valid {
@@ -90,4 +95,8 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	if CheckServerError(w, err) {
 		return
 	}
+
+	by, err := json.Marshal(Response{Path: hashDataStr})
+
+	w.Write(by)
 }
