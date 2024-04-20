@@ -105,6 +105,7 @@ func (s *HandlersServer) ValidateToken(w http.ResponseWriter, r *http.Request) (
 			})
 			return nil, err
 		}
+		log.Println("expiration ok")
 
 		id, err := token.Claims.GetSubject()
 		if err != nil {
@@ -115,6 +116,7 @@ func (s *HandlersServer) ValidateToken(w http.ResponseWriter, r *http.Request) (
 			})
 			return nil, err
 		}
+		log.Println("subject ok")
 
 		err = s.DB.Table("users").Where("id = ?", id).First(user).Error
 		if CheckServerError(w, err) {
