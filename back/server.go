@@ -2,12 +2,10 @@ package main
 
 import (
 	"net/http"
-	"time"
 
 	. "back/handlers"
 
 	"github.com/gorilla/mux"
-	"github.com/patrickmn/go-cache"
 	"gorm.io/gorm"
 )
 
@@ -15,9 +13,8 @@ type Server struct{ HandlersServer }
 
 func NewServer(address string, db *gorm.DB) Server {
 	return Server{HandlersServer: HandlersServer{
-		Address:  address,
-		DB:       db,
-		JWTcache: cache.New(24*time.Hour, 10*time.Minute),
+		Address: address,
+		DB:      db,
 	}}
 }
 
