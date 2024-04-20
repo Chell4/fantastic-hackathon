@@ -83,7 +83,7 @@ func (s *HandlersServer) HandleLoginPost(w http.ResponseWriter, r *http.Request)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(24 * time.Hour),
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
 	})
 
 	tokenString, err := token.SignedString(user.PasswordHash)
