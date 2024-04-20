@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/robfig/cron/v3"
@@ -74,7 +76,10 @@ func CheckServerError(w http.ResponseWriter, err error) bool {
 }
 
 func (s *HandlersServer) ValidateToken(w http.ResponseWriter, r *http.Request) (*User, bool) {
-	tokenStr := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	tokenStr := string(slices.DeleteFunc(
+		[]rune(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")),
+		func(r rune) bool { return unicode.IsSpace(r) },
+	))
 
 	if tokenStr == "" {
 		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
