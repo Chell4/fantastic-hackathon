@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -26,6 +27,8 @@ func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request
 	if !valid {
 		return
 	}
+
+	log.Println(user)
 
 	secondName := ""
 	if user.SecondName != nil {
