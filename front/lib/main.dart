@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'dart:html' as html;
+import 'package:front/screens/Admin.dart';
 import 'package:front/screens/ChangeProfile.dart';
 import 'package:front/utils/Constants.dart';
 import 'package:http/http.dart' as http;
@@ -57,6 +58,8 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyHomePage extends StatefulWidget {
+  static late _MyHomePageState instance;
+
   const MyHomePage({super.key});
 
   @override
@@ -73,6 +76,7 @@ final GoRouter router = GoRouter(routes: [
   }),
   GoRoute(path: '/register', name: "Register", builder: (_, __) => Register()),
   GoRoute(path: '/changeProfile', name: "ChangeProfile", builder: (_, __) => ChangeProfile()),
+  GoRoute(path: '/admin', name: "Admin", builder: (_, __) => Admin()),
   ], navigatorKey: navigatorKey,
     redirect: (context, state) async {
       final requireAuth = state.fullPath != "/login" && state.fullPath != "/register";
@@ -96,18 +100,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool _loaded = false;
 
-  User? _currentUser;
+  User? currentUser;
 
   Future<void> initialize() async {
     final response = await http.get(
-        Uri.parse("$BACKEND/profile"),
+        Uri.parse("${BACKEND}profile"),
         headers: {
-          'Content-Type': 'application/json', // Устанавливаем заголовок Content-Type
-          "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-          "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
-          "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Authorization": "Bearer ${html.window.localStorage["authToken"]}"
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
         }
     );
 
@@ -118,14 +118,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (response.statusCode == HttpStatus.ok) {
       print(response.body);
-      _currentUser = User.fromJson(jsonDecode(response.body));
-      _loaded = true;
+      currentUser = User.fromJson(jsonDecode(response.body));
+      setState(() {
+        _loaded = true;
+      });
     }
   }
 
   @override
   void initState() {
     super.initState();
+    MyHomePage.instance = this;
     _initFuture = initialize();
     // TODO: implement initState
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
@@ -162,9 +165,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.white,
                   ),
                 ),
-                _currentUser == null
-                    || _currentUser!.picturePath == null
-                    || _currentUser!.picturePath!.isEmpty
+                currentUser == null
+                    || currentUser!.picturePath == null
+                    || currentUser!.picturePath!.isEmpty
                     ?
                 Lottie.asset(
                   "assets/Cup.json",
@@ -183,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   filterQuality: FilterQuality.low,
                 ) :
-                Image.network("$BACKEND/media/${_currentUser!.picturePath!}", width: max(128, screenWidth / 4 - 60), fit: BoxFit.scaleDown, filterQuality: FilterQuality.medium,)
+                Image.network("$BACKEND/media/${currentUser!.picturePath!}", width: max(128, screenWidth / 4 - 60), fit: BoxFit.scaleDown, filterQuality: FilterQuality.medium,)
               ],
             ),
           ),
@@ -198,16 +201,16 @@ class _MyHomePageState extends State<MyHomePage> {
             FittedBox(
               fit: BoxFit.scaleDown,
               clipBehavior: Clip.hardEdge,
-              child: Text(
-                _currentUser == null ? "Firstname Lastname" : "${_currentUser!.firstName}${_currentUser!.secondName!.isEmpty ? "" : " _currentUser!.secondName"} ${_currentUser!.lastName}",
+              child: currentUser == null ? const CircularProgressIndicator() : Text(
+                "${currentUser!.firstName}${currentUser!.secondName!.isEmpty ? "" : " _currentUser!.secondName"} ${currentUser!.lastName}",
                 style: Theme.of(context).textTheme.displayMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             FittedBox(
               fit: BoxFit.scaleDown,
               clipBehavior: Clip.hardEdge,
-              child: Text(
-                _currentUser == null ? "+7(912) 345 67-89" : _currentUser!.phone!,
+              child: currentUser == null ? SizedBox(height: 1, width: 1,) : Text(
+                currentUser!.phone!,
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w400),
               ),
             ),
@@ -256,7 +259,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return FutureBuilder<void>(
         future: _initFuture, // Pass the future that represents the asynchronous operation
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting || !_loaded) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             // If the future is still waiting, show a loading indicator
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
