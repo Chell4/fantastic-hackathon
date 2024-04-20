@@ -74,7 +74,7 @@ func CheckServerError(w http.ResponseWriter, err error) bool {
 }
 
 func (s *HandlersServer) ValidateToken(w http.ResponseWriter, r *http.Request) (*User, bool) {
-	tokenStr := strings.TrimPrefix(r.Header.Get("Autothorization"), "Bearer ")
+	tokenStr := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 
 	if tokenStr == "" {
 		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
