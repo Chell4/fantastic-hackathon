@@ -13,6 +13,17 @@ type PictureRequest struct {
 	Picture []byte `json:"picture"`
 }
 
+func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		s.HandleMediaGet(w, r)
+	case "POST":
+		s.HandleMediaPost(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
 func (s *HandlersServer) HandleMediaPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	path, has := vars["path"]
@@ -47,17 +58,6 @@ func (s *HandlersServer) HandleMediaPost(w http.ResponseWriter, r *http.Request)
 	err = os.WriteFile("/media/"+path, pic.Picture, 0666)
 	if CheckServerError(w, err) {
 		return
-	}
-}
-
-func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		s.HandleMediaGet(w, r)
-	case "POST":
-		s.HandleMediaPost(w, r)
-	default:
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
