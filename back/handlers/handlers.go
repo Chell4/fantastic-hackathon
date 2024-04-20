@@ -120,7 +120,7 @@ func (s *HandlersServer) ValidateToken(w http.ResponseWriter, r *http.Request) (
 		}
 		log.Println("subject ok")
 
-		err = s.DB.Table("users").Where("id = ?", id).First(user).Error
+		err = s.DB.Table("users").Where("id = ?", id).First(&user).Error
 		if CheckServerError(w, err) {
 			return nil, err
 		}
