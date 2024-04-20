@@ -17,6 +17,8 @@ type RegisterRequest struct {
 }
 
 func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) {
+	WriteHeadersForFront(w)
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
