@@ -81,7 +81,7 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 
 	hashDataStr := base64.StdEncoding.EncodeToString(hashData)
 
-	err = os.WriteFile(exPath+"media/"+hashDataStr, picData, 0644)
+	err = os.WriteFile(exPath+"/media/"+hashDataStr, picData, 0644)
 	if CheckServerError(w, err) {
 		return
 	}
