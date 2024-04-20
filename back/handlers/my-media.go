@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func (s *HandlersServer) HandleMyMedia(w http.ResponseWriter, r *http.Request) {
@@ -65,6 +66,12 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 		})
 	}
 
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+
 	hash := md5.New()
 	_, err = hash.Write(picData)
 	if CheckServerError(w, err) {
@@ -72,18 +79,14 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	}
 	hashData := hash.Sum(nil)
 
-	println("hash write ok")
+	hashDataStr := base64.StdEncoding.EncodeToString(hashData)
 
-	err = os.WriteFile("media/"+base64.StdEncoding.EncodeToString(hashData), picData, 0644)
+	err = os.WriteFile(exPath+"media/"+hashDataStr, picData, 0644)
 	if CheckServerError(w, err) {
 		return
 	}
 
-	println("writefile ok")
-
-	println(hashData)
-
-	err = s.DB.Table("users").Where("id = ?", user.ID).Update("picture_path", hashData).Error
+	err = s.DB.Table("users").Where("id = ?", user.ID).Update("picture_path", hashDataStr).Error
 	if CheckServerError(w, err) {
 		return
 	}
