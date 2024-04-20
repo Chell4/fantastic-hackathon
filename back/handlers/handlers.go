@@ -28,6 +28,7 @@ const (
 	ErrExplainMissingToken       = "Missing token"
 	ErrExplainInvalidToken       = "Provided token is invalid"
 	ErrExplainTokenExpired       = "Provided token expired"
+	ErrExplainNotAdmin           = "This is available only for admins"
 )
 
 const BcryptCost = 10
@@ -48,6 +49,7 @@ type User struct {
 	PasswordHash []byte
 	Phone        string
 	PicturePath  *string
+	IsAdmin      bool
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
