@@ -1,5 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+
+import 'dart:html' as html;
+import 'package:front/screens/ChangeProfile.dart';
+import 'package:front/utils/Constants.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:front/screens/Login.dart';
@@ -8,13 +15,26 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:url_strategy/url_strategy.dart';
 
+import 'entities/User.dart';
+
 void main() {
   setPathUrlStrategy();
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +65,24 @@ class MyHomePage extends StatefulWidget {
 
 final GoRouter router = GoRouter(routes: [
   GoRoute(path: '/', name: "Home", builder: (_, __) => MyHomePage()),
-  GoRoute(path: '/login', name: "Login", builder: (_, __) => Login()),
+  GoRoute(path: '/login', name: "Login", builder: (_, __) {
+    print(__.extra);
+    Map<String, dynamic>? args =
+    __.extra as Map<String, dynamic>?;
+    return Login(ref: args?["ref"]);
+  }),
   GoRoute(path: '/register', name: "Register", builder: (_, __) => Register()),
+  GoRoute(path: '/changeProfile', name: "ChangeProfile", builder: (_, __) => ChangeProfile()),
   ], navigatorKey: navigatorKey,
     redirect: (context, state) async {
       final requireAuth = state.fullPath != "/login" && state.fullPath != "/register";
-      final jwtToken = null; // TODO
+      final jwtToken = html.window.localStorage["authToken"]; // TODO
 
       if (requireAuth && (jwtToken == null || jwtToken.isEmpty)) {
-        return '/'; //
+        return '/login'; //
       }
 
-      return "/";
+      return null;
 });
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -66,8 +92,41 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isSecondHalfVisible = true;
   bool widthProp = true;
 
+  late Future<void> _initFuture;
+
+  bool _loaded = false;
+
+  User? _currentUser;
+
+  Future<void> initialize() async {
+    final response = await http.get(
+        Uri.parse("$BACKEND/profile"),
+        headers: {
+          'Content-Type': 'application/json', // Устанавливаем заголовок Content-Type
+          "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+          "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
+          "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Authorization": "Bearer ${html.window.localStorage["authToken"]}"
+        }
+    );
+
+    if (response.statusCode == HttpStatus.unauthorized) {
+      html.window.localStorage.remove("authToken");
+      context.go("/login");
+    }
+
+    if (response.statusCode == HttpStatus.ok) {
+      print(response.body);
+      _currentUser = User.fromJson(jsonDecode(response.body));
+      _loaded = true;
+    }
+  }
+
   @override
   void initState() {
+    super.initState();
+    _initFuture = initialize();
     // TODO: implement initState
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       double screenWidth = MediaQuery.of(context).size.width;
@@ -103,6 +162,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.white,
                   ),
                 ),
+                _currentUser == null
+                    || _currentUser!.picturePath == null
+                    || _currentUser!.picturePath!.isEmpty
+                    ?
                 Lottie.asset(
                   "assets/Cup.json",
                   frameRate: const FrameRate(60),
@@ -119,7 +182,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       ..repeat();
                   },
                   filterQuality: FilterQuality.low,
-                )
+                ) :
+                Image.network("$BACKEND/media/${_currentUser!.picturePath!}", width: max(128, screenWidth / 4 - 60), fit: BoxFit.scaleDown, filterQuality: FilterQuality.medium,)
               ],
             ),
           ),
@@ -135,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
               fit: BoxFit.scaleDown,
               clipBehavior: Clip.hardEdge,
               child: Text(
-                "Firstname Lastname",
+                _currentUser == null ? "Firstname Lastname" : "${_currentUser!.firstName}${_currentUser!.secondName!.isEmpty ? "" : " _currentUser!.secondName"} ${_currentUser!.lastName}",
                 style: Theme.of(context).textTheme.displayMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
@@ -143,7 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
               fit: BoxFit.scaleDown,
               clipBehavior: Clip.hardEdge,
               child: Text(
-                "+7(912) 345 67-89",
+                _currentUser == null ? "+7(912) 345 67-89" : _currentUser!.phone!,
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w400),
               ),
             ),
@@ -166,79 +230,106 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           SizedBox(width: 10), // Промежуток между кнопками
           Expanded(
-            child: ElevatedButton(
+            child: ElevatedButton.icon(
               onPressed: () {
-                // Действия при нажатии на вторую кнопку
+                context.push("/changeProfile");
               },
-              child: Text("Button 2"),
+              icon: Icon(Icons.person),
+              label: Text("Edit profile"),
             ),
           ),
           SizedBox(width: 10), // Промежуток между кнопками
           Expanded(
-            child: ElevatedButton(
+            child: ElevatedButton.icon(
               onPressed: () {
-                // Действия при нажатии на третью кнопку
+                html.window.localStorage.remove("authToken");
+                context.go("/login");
               },
-              child: Text("Button 3"),
+              icon: Icon(Icons.logout),
+              label: Text("Logout"),
             ),
           ),
         ],
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: Colors.black12,
-      body: Row(
-        children: [
-          // Первая половина экрана
-          !isSecondHalfVisible || widthProp
-              ? Container(
-            color: Colors.white,
-            width: widthProp ? screenWidth / 2 - 1 : screenWidth,
-            height: double.infinity,
-            // You can add any child widget here
-          )
-              : Container(), // Пустой контейнер, если вторая половина скрыта
-          widthProp ? SizedBox(width: 2, height: double.infinity) : Container(),
-          // Вторая половина экрана
-          isSecondHalfVisible ? Expanded(
-            child: Container(
-              color: Colors.white,
-              height: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 40, 20, 40),
-                child: Form(
-                  key: GlobalKey(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: (widthProp ? profile: <Widget>[
-                            FittedBox(child: Row(children: profile,), fit: BoxFit.scaleDown,),
-                          ]) + [SizedBox(height: widthProp ? min(300, screenHeight / 6) : min(screenHeight / 1.5, screenWidth / 1.5) - 40,)],
+    return FutureBuilder<void>(
+        future: _initFuture, // Pass the future that represents the asynchronous operation
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting || !_loaded) {
+            // If the future is still waiting, show a loading indicator
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // If an error occurred while fetching data, display an error message
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            return Scaffold(
+              backgroundColor: Colors.black12,
+              body: Row(
+                children: [
+                  // Первая половина экрана
+                  !isSecondHalfVisible || widthProp
+                      ? Container(
+                    color: Colors.white,
+                    width: widthProp ? screenWidth / 2 - 1 : screenWidth,
+                    height: double.infinity,
+                    // You can add any child widget here
+                  )
+                      : Container(),
+                  // Пустой контейнер, если вторая половина скрыта
+                  widthProp
+                      ? SizedBox(width: 2, height: double.infinity)
+                      : Container(),
+                  // Вторая половина экрана
+                  isSecondHalfVisible ? Expanded(
+                    child: Container(
+                      color: Colors.white,
+                      height: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 40, 20, 40),
+                        child: Form(
+                          key: GlobalKey(),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: (widthProp ? profile : <Widget>[
+                                    FittedBox(child: Row(children: profile,),
+                                      fit: BoxFit.scaleDown,),
+                                  ]) + [
+                                    SizedBox(height: widthProp ? min(
+                                        300, screenHeight / 6) : min(
+                                        screenHeight / 1.5, screenWidth / 1.5) -
+                                        40,)
+                                  ],
+                                ),
+                              ),
+                            ] + buttons,
+                          ),
                         ),
                       ),
-                    ] + buttons,
-                  ),
-                ),
+                    ),
+                  ) : Container(),
+                ],
               ),
-            ),
-          ) : Container(),
-        ],
-      ),
-      // Кнопка для открытия/скрытия второй половины экрана
-      floatingActionButton: widthProp ? null : FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            isSecondHalfVisible = !isSecondHalfVisible; // Переключение состояния видимости второй половины экрана
-          });
-        },
-        isExtended: true,
-        child: Icon(isSecondHalfVisible ? Icons.arrow_forward : Icons.arrow_back), // Иконка меняется в зависимости от состояния
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, // Расположение кнопки по центру внизу
-    );
+              // Кнопка для открытия/скрытия второй половины экрана
+              floatingActionButton: widthProp ? null : FloatingActionButton(
+                onPressed: () {
+                  setState(() {
+                    isSecondHalfVisible =
+                    !isSecondHalfVisible; // Переключение состояния видимости второй половины экрана
+                  });
+                },
+                isExtended: true,
+                child: Icon(isSecondHalfVisible ? Icons.arrow_forward : Icons
+                    .arrow_back), // Иконка меняется в зависимости от состояния
+              ),
+              floatingActionButtonLocation: FloatingActionButtonLocation
+                  .centerFloat, // Расположение кнопки по центру внизу
+            );
+          }
+        });
   }
 }
