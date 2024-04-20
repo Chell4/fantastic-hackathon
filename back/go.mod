@@ -23,5 +23,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/rs/cors v1.10.1
 	gorm.io/driver/postgres v1.5.7
 )
