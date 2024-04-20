@@ -23,6 +23,7 @@ const (
 	ErrExplainNoPassword         = "No password or empty"
 	ErrExplainNoFirstName        = "No first name or empty"
 	ErrExplainNoLastName         = "No last name or empty"
+	ErrExplainMissingToken       = "Missing jwt token"
 )
 
 func ErrorMap(w http.ResponseWriter, code int, body map[string]interface{}) {

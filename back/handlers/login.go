@@ -42,7 +42,7 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var cntUsers int64
-	err = s.DB.Table("users").Find(&User{Phone: logReq.Phone}).Count(&cntUsers).Error
+	err = s.DB.Table("users").Where("phone = ?", logReq.Phone).Count(&cntUsers).Error
 	if CheckServerError(w, err) {
 		return
 	}
@@ -57,7 +57,7 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user User
-	err = s.DB.Table("users").Find(&User{Phone: logReq.Phone}).First(&user).Error
+	err = s.DB.Table("users").Where("phone = ?", logReq.Phone).First(&user).Error
 	if CheckServerError(w, err) {
 		return
 	}
