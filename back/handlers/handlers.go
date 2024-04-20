@@ -58,6 +58,7 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Vary", "Origin")
 	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
+	(*w).Header().Set("Access-Control-Allow-Headers", "authorization,content-type")
 }
 
 func ErrorMap(w http.ResponseWriter, code int, body interface{}) {
