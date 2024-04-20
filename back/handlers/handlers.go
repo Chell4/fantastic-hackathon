@@ -87,6 +87,8 @@ func (s *HandlersServer) ValidateToken(w http.ResponseWriter, r *http.Request) (
 
 	var user *User
 
+	log.Println(tokenStr)
+
 	_, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		expTime, err := token.Claims.GetExpirationTime()
 		if err != nil {
