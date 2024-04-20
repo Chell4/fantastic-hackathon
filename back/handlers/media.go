@@ -16,7 +16,7 @@ func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pic, err := os.ReadFile("../media" + path)
+	pic, err := os.ReadFile("../media/" + path)
 	if err != nil {
 		http.Error(w, ErrStatusInvalidMedia, http.StatusBadRequest)
 		return
