@@ -5,11 +5,11 @@ import (
 )
 
 type ProfileResponse struct {
-	FirstName   string  `json:"first_name"`
-	SecondName  *string `json:"second_name"`
-	LastName    string  `json:"last_name"`
-	Phone       string  `json:"phone"`
-	PicturePath *string `json:"picture_path"`
+	FirstName   string `json:"first_name"`
+	SecondName  string `json:"second_name"`
+	LastName    string `json:"last_name"`
+	Phone       string `json:"phone"`
+	PicturePath string `json:"picture_path"`
 }
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
@@ -27,11 +27,20 @@ func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	secondName := ""
+	if user.SecondName != nil {
+		secondName = *user.SecondName
+	}
+	picturePath := ""
+	if user.PicturePath != nil {
+		picturePath = *user.PicturePath
+	}
+
 	ErrorMap(w, http.StatusOK, ProfileResponse{
 		FirstName:   user.FirstName,
-		SecondName:  user.SecondName,
+		SecondName:  secondName,
 		LastName:    user.FirstName,
 		Phone:       user.Phone,
-		PicturePath: user.PicturePath,
+		PicturePath: picturePath,
 	})
 }
