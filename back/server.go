@@ -25,16 +25,16 @@ type Endpoints = map[string]func(http.ResponseWriter, *http.Request)
 
 func (s *Server) endpoints() Endpoints {
 	return Endpoints{
-		`/ping`:            s.HandlePing,
-		`/ping/{pong:\w*}`: s.HandlePing,
+		`GET /ping`:            s.HandlePing,
+		`GET /ping/{pong:\w*}`: s.HandlePing,
 
-		`/auth/login`:    s.HandleLogin,
-		`/auth/register`: s.HandleRegister,
+		`POST /auth/login`:    s.HandleLogin,
+		`POST /auth/register`: s.HandleRegister,
 
-		`/profile`: s.HandleProfile,
+		`GET /profile`: s.HandleProfile,
 
-		`/media/{path}`: s.HandleMedia,
-		`/schedule`:     s.HandleSchedule,
+		`GET /media/{path}`: s.HandleMedia,
+		`POST /schedule`:    s.HandleSchedule,
 	}
 }
 
