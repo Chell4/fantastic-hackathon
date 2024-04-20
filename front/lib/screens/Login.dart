@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -5,25 +6,39 @@ import 'package:go_router/go_router.dart';
 import 'package:iosish_shaker/iosish_shaker.dart';
 import 'package:lottie/lottie.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:html' as html;
+
 import 'package:material_text_fields/material_text_fields.dart';
 import 'package:material_text_fields/theme/material_text_field_theme.dart';
 import 'package:material_text_fields/utils/form_validation.dart';
 import 'package:phone_form_field/phone_form_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/Constants.dart';
+import '../utils/GreenAlert.dart';
 import '../utils/Validation.dart';
 
 class Login extends StatefulWidget{
+  final String? ref;
+
+  const Login({Key? key, required this.ref}) : super(key: key);
+
   @override
   State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> with TickerProviderStateMixin  {
+  String? ref;
+
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   final ShakerController shakeController = ShakerController();
+
+  Key phoneKey = GlobalKey();
 
   late final AnimationController _gifController;
 
@@ -33,6 +48,82 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
   void initState() {
     _gifController = AnimationController(vsync: this);
     super.initState();
+  }
+
+  String? phoneError = null;
+  String? passError = null;
+
+  onSubmitBtnPressed() async {
+    phoneError = null;
+    passError = null;
+    if (_key.currentState?.validate() == true) {
+      _gifController.forward(from: 0.0);
+      try {
+        Map data = {
+          "phone": "+${phoneController.value.countryCode}${phoneController.value.nsn}",
+          "password": _passwordController.text,
+        };
+
+        final response = await http.post(
+          Uri.parse(BACKEND + 'auth/login'),
+          headers: <String, String>{
+            'Content-Type': 'application/json', // Устанавливаем заголовок Content-Type
+            "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+            "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
+            "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+          },
+          body: json.encode(data), // Передаем JSON-тело запроса
+        );
+
+        var dataa = response;
+
+        try {
+          var jsonResp = jsonDecode(dataa.body) as Map<String, dynamic>;
+          if (jsonResp.containsKey("reason")) {
+            switch (jsonResp["reason"]) {
+              case "login" : {
+                phoneError = jsonResp["explain"];
+                var value = phoneController.value;
+                phoneController.value = phoneController.initialValue;
+                phoneController.value = value;
+                break;
+              }
+              case "password" : {
+                passError = jsonResp["explain"];
+                var value = _passwordController.value;
+                _passwordController.value = TextEditingValue();
+                _passwordController.value = value;
+                break;
+              }
+            }
+            shakeController.shake();
+            _key.currentState?.validate();
+          } else {
+            html.window.localStorage["authToken"] = jsonResp["token"];
+
+            context.go("/");
+          }
+
+        } catch (e) {
+          print(e);
+          return;
+        }
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      shakeController.shake();
+    }
+  }
+
+
+  String? passValidator(String? password) {
+    if (passError != null) return passError;
+    var ph = FormValidation.requiredTextField(password);
+    if (ph == null && phoneError == null) return null;
+    if (ph != null) return ph;
+    return null;
   }
 
   @override
@@ -75,17 +166,27 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                               filterQuality: FilterQuality.low
                           )
                           ),
+                          widget.ref != null ? GreenAlert(
+                            message: 'Registered successfully!',
+                            width: min(maxWidth, constraints.maxWidth) - 40,
+                          ) : Container(),
                           SizedBox(
                             height: constraints.maxHeight * 0.05,
                           ),
                           PhoneFormField(
+                              key: phoneKey,
                               controller: phoneController,
                               validator: PhoneValidator.compose(
-                                  [PhoneValidator.required(context), PhoneValidator.validMobile(context)]),
+                                  [
+                                    PhoneValidator.required(context),
+                                    PhoneValidator.validMobile(context),
+                                    <String>(String phone) {
+                                        return phoneError;
+                                    }
+                                  ]),
                               enabled: true,
                               isCountrySelectionEnabled: true,
                               isCountryButtonPersistent: true,
-
                               countryButtonStyle: CountryButtonStyle(
                                   showDropdownIcon: false,
                                   showDialCode: true,
@@ -104,18 +205,25 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                             height: min(maxWidth, constraints.maxWidth) * 0.025,
                           ),
                           MaterialTextField(
+                            key: GlobalKey<FormState>(),
+                            controller: _passwordController,
                             keyboardType: TextInputType.visiblePassword,
                             obscureText: true,
                             hint: "Password",
                             labelText: "Password",
+                            errorText: passError,
                             theme: FilledOrOutlinedTextTheme(
                               enabledColor: Colors.grey,
                               focusedColor: Colors.grey.shade400,
                               fillColor: Colors.transparent,
                             ),
+                            onChanged: (String a) {
+                              _key.currentState?.validate();
+                              passError = null;
+                            },
                             textInputAction: TextInputAction.next,
                             prefixIcon: const Icon(Icons.lock),
-                            validator: FormValidation.requiredTextField,
+                            validator: passValidator,
                           ),
                           SizedBox(
                             height: min(maxWidth, constraints.maxWidth) * 0.05,
@@ -143,7 +251,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                             },
                           ),
                           SizedBox(
-                            height: constraints.maxHeight * 0.15,
+                            height: widget.ref != null ? constraints.maxHeight * 0.10 : constraints.maxHeight * 0.15,
                           ),
                           Text("Natus Coders for Oggetto, 2024")
                         ],
@@ -158,12 +266,4 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
     );
   }
 
-  onSubmitBtnPressed() {
-    if (_key.currentState?.validate() == true) {
-      _gifController.forward(from: 0.0);
-      // TO BACKEND
-    } else {
-      shakeController.shake();
-    }
-  }
 }
