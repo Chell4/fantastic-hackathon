@@ -53,7 +53,7 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password)[:72], BcryptCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password)[:min(len(req.Password), 72)], BcryptCost)
 	if CheckServerError(w, err) {
 		return
 	}
@@ -68,4 +68,6 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 	if CheckServerError(w, err) {
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
 }
