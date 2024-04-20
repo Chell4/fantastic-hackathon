@@ -1,17 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
 )
-
-type PictureRequest struct {
-	Picture []byte `json:"picture"`
-}
 
 func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -62,27 +57,19 @@ func (s *HandlersServer) HandleMediaPost(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	req, err := io.ReadAll(r.Body)
+	reqPic, err := io.ReadAll(r.Body)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
-			"type":    "media",
+			"type":    "data",
 			"reason":  "body",
 			"explain": ErrExplainCannotReadBody,
 		})
 		return
 	}
-	var pic PictureRequest
-	err = json.Unmarshal(req, &pic)
-	if err != nil {
-		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
-			"type":    "media",
-			"reason":  "json",
-			"explain": ErrExplainInvalidJSON,
-		})
-		return
-	}
-	err = os.WriteFile("/media/"+path, pic.Picture, 0666)
+	err = os.WriteFile("/media/"+path, reqPic, 0644)
 	if CheckServerError(w, err) {
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
 }
