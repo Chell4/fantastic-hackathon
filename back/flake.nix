@@ -19,7 +19,7 @@
 
         src = ./.;
 
-        vendorHash = null;
+        vendorHash = pkgs.lib.fakeHash;
       };
       
       backContainer = pkgs.dockerTools.buildImage {
