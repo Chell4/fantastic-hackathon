@@ -58,7 +58,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                         children: [
                           Shaker(controller: shakeController, child:
                             Lottie.asset(
-                              "Cup.json",
+                              "assets/Cup.json",
                               controller: _gifController,
                               width: min(maxWidth, constraints.maxWidth) * 0.6,
                               frameRate: const FrameRate(60),

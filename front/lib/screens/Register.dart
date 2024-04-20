@@ -59,7 +59,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                         children: [
                           Shaker(controller: shakeController, child:
                           Lottie.asset(
-                              "IdentificationCard.json",
+                              "assets/IdentificationCard.json",
                               controller: _gifController,
                               width: min(maxWidth, constraints.maxWidth) * 0.6,
                               frameRate: const FrameRate(60),
@@ -85,7 +85,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                             isCountrySelectionEnabled: true,
                             isCountryButtonPersistent: true,
 
-                            countryButtonStyle: CountryButtonStyle(
+                            countryButtonStyle: const CountryButtonStyle(
                                 showDropdownIcon: false,
                               showDialCode: true,
                               showFlag: true,
