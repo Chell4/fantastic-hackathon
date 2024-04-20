@@ -30,7 +30,6 @@ func (s *Server) endpoints() Endpoints {
 
 		`/auth/login`:    s.HandleLogin,
 		`/auth/register`: s.HandleRegister,
-		`/auth/logout`:   s.HandleLogout,
 
 		`/profile`: s.HandleProfile,
 
