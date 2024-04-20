@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -34,8 +35,10 @@ func ErrorMap(w http.ResponseWriter, code int, body map[string]interface{}) {
 const BcryptCost = 10
 
 type HandlersServer struct {
-	Address string
-	DB      *gorm.DB
+	Address     string
+	DB          *gorm.DB
+	Cron        *cron.Cron
+	CronProcess *cron.EntryID
 }
 
 type User struct {
