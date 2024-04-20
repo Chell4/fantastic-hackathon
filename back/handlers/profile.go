@@ -30,6 +30,8 @@ func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		s.HandleProfileGet(w, r)
+	case "POST":
+		s.HandleProfilePost(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
