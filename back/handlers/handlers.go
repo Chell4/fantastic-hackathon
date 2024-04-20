@@ -128,6 +128,7 @@ func (s *HandlersServer) ValidateToken(w http.ResponseWriter, r *http.Request) (
 		return user.PasswordHash, nil
 	})
 	if err != nil {
+		log.Println(err)
 		return nil, false
 	}
 
