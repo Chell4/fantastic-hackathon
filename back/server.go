@@ -6,6 +6,8 @@ import (
 	. "back/handlers"
 
 	"github.com/gorilla/mux"
+	"github.com/robfig/cron/v3"
+	"github.com/rs/cors"
 	"gorm.io/gorm"
 )
 
@@ -13,8 +15,10 @@ type Server struct{ HandlersServer }
 
 func NewServer(address string, db *gorm.DB) Server {
 	return Server{HandlersServer: HandlersServer{
-		Address: address,
-		DB:      db,
+		Address:     address,
+		DB:          db,
+		Cron:        cron.New(),
+		CronProcess: nil,
 	}}
 }
 
@@ -25,13 +29,15 @@ func (s *Server) endpoints() Endpoints {
 		`/ping`:            s.HandlePing,
 		`/ping/{pong:\w*}`: s.HandlePing,
 
-		`/auth/login`:    s.HandleLogin,
-		`/auth/register`: s.HandleRegister,
-		`/auth/logout`:   s.HandleLogout,
+		`/auth/ping`:            s.HandleAuthPing,
+		`/auth/ping/{pong:\w*}`: s.HandleAuthPing,
+		`/auth/login`:           s.HandleLogin,
+		`/auth/register`:        s.HandleRegister,
 
 		`/profile`: s.HandleProfile,
 
-		`/media/{img_name}`: s.HandleMedia,
+		`/media/{path}`: s.HandleMedia,
+		`/schedule`:     s.HandleSchedule,
 	}
 }
 
@@ -42,7 +48,7 @@ func (s *Server) StartServer() error {
 		mulx.HandleFunc(endpoint, handler)
 	}
 
-	err := http.ListenAndServe(s.Address, mulx)
+	err := http.ListenAndServe(s.Address, cors.Default().Handler(mulx))
 	if err != nil {
 		return err
 	}

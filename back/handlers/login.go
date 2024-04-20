@@ -20,6 +20,15 @@ type LoginResponse struct {
 }
 
 func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		s.HandleLoginPost(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *HandlersServer) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 	reqJSON, err := io.ReadAll(r.Body)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
@@ -42,7 +51,7 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var cntUsers int64
-	err = s.DB.Table("users").Where("phone_number = ?", logReq.Phone).Count(&cntUsers).Error
+	err = s.DB.Table("users").Where("phone = ?", logReq.Phone).Count(&cntUsers).Error
 	if CheckServerError(w, err) {
 		return
 	}
@@ -51,13 +60,13 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
 			"type":    "auth",
 			"reason":  "login",
-			"explain": ErrExplainLoginUserNotExists,
+			"explain": ErrExplainUserPhoneNotExists,
 		})
 		return
 	}
 
 	var user User
-	err = s.DB.Table("users").Where("phone_numger = ?", logReq.Phone).First(&user).Error
+	err = s.DB.Table("users").Where("phone = ?", logReq.Phone).First(&user).Error
 	if CheckServerError(w, err) {
 		return
 	}
@@ -74,7 +83,7 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(24 * time.Hour),
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
 	})
 
 	tokenString, err := token.SignedString(user.PasswordHash)

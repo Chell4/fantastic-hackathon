@@ -6,16 +6,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *HandlersServer) HandlePing(w http.ResponseWriter, r *http.Request) {
+func (s *HandlersServer) HandleAuthPing(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		s.HandlePingGet(w, r)
+		s.HandleAuthPingGet(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
-func (s *HandlersServer) HandlePingGet(w http.ResponseWriter, r *http.Request) {
+func (s *HandlersServer) HandleAuthPingGet(w http.ResponseWriter, r *http.Request) {
+	if _, valid := s.ValidateToken(w, r); !valid {
+		return
+	}
+
 	vars := mux.Vars(r)
 
 	pong := vars["pong"]
