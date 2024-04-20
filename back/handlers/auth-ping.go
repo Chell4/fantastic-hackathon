@@ -7,7 +7,9 @@ import (
 )
 
 func (s *HandlersServer) HandleAuthPing(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	if enableCors(&w, r) {
+		return
+	}
 	switch r.Method {
 	case "GET":
 		s.HandleAuthPingGet(w, r)
