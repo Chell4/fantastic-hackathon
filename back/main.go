@@ -43,11 +43,6 @@ func main() {
 		log.Fatalln("Unable to automigrate db:", err)
 	}
 
-	err = db.Migrator().RenameTable(&User{}, "users")
-	if err != nil {
-		log.Fatalln("Unable to rename table:", err)
-	}
-
 	s := NewServer("localhost:8080", db)
 
 	s.StartServer()
