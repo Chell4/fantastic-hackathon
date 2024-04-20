@@ -25,16 +25,6 @@ const (
 	ErrExplainNoLastName         = "No last name or empty"
 )
 
-func WriteHeadersForFront(w http.ResponseWriter) {
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Access-Control-Allow-Credentials", "true")
-	w.Header().Add(
-		"Access-Control-Allow-Headers",
-		"Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
-	)
-	w.Header().Add("Access-Control-Allow-Methods", "POST, OPTIONS")
-}
-
 func ErrorMap(w http.ResponseWriter, code int, body map[string]interface{}) {
 	bodyJSON, err := json.Marshal(body)
 	if err != nil {
