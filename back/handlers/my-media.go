@@ -3,7 +3,6 @@ package handlers
 import (
 	"crypto/md5"
 	"encoding/base64"
-	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -52,8 +51,25 @@ func (s *HandlersServer) HandleMyMediaGet(w http.ResponseWriter, r *http.Request
 	w.Write(pic)
 }
 
-type Response struct {
-	Path string `json:"path"`
+func sanitizeFilename(filename string) string {
+	allowedChars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-@#$%^&*"
+	var result []byte
+	for i := range filename {
+		char := filename[i]
+		isAllowed := false
+		for j := range allowedChars {
+			if char == allowedChars[j] {
+				isAllowed = true
+				break
+			}
+		}
+		if isAllowed {
+			result = append(result, char)
+		} else {
+			result = append(result, '_')
+		}
+	}
+	return string(result)
 }
 
 func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Request) {
@@ -85,6 +101,7 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	hashData := hash.Sum(nil)
 
 	hashDataStr := base64.StdEncoding.EncodeToString(hashData)
+	hashDataStr = sanitizeFilename(hashDataStr)
 
 	err = os.WriteFile(exPath+"/media/"+hashDataStr, picData, 0644)
 	if CheckServerError(w, err) {
@@ -95,9 +112,4 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	if CheckServerError(w, err) {
 		return
 	}
-
-	by, err := json.Marshal(Response{Path: hashDataStr})
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(by)
 }
