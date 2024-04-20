@@ -13,7 +13,7 @@ const (
 	ErrExplainCannotReadBody     = "Request body is not readable"
 	ErrExplainInvalidJSON        = "Invlalid json schema"
 	ErrExplainDatabaseErr        = "Error while interacting with database"
-	ErrExplainUserExists         = "User with this login already exists"
+	ErrExplainPhoneExists        = "User with this phone already exists"
 	ErrExplainLoginUserNotExists = "User with this id doesn't exist"
 	ErrExplainInvalidPhotoURL    = "Sent photo url is not valid"
 	ErrExplainWrongPassword      = "Wrong password"
