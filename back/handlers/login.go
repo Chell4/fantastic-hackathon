@@ -42,7 +42,7 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var cntUsers int64
-	err = s.DB.Table("users").Where("phone_number = ?", logReq.Phone).Count(&cntUsers).Error
+	err = s.DB.Table("users").Find(&User{Phone: logReq.Phone}).Count(&cntUsers).Error
 	if CheckServerError(w, err) {
 		return
 	}
@@ -51,13 +51,13 @@ func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
 			"type":    "auth",
 			"reason":  "login",
-			"explain": ErrExplainLoginUserNotExists,
+			"explain": ErrExplainUserPhoneNotExists,
 		})
 		return
 	}
 
 	var user User
-	err = s.DB.Table("users").Where("phone_numger = ?", logReq.Phone).First(&user).Error
+	err = s.DB.Table("users").Find(&User{Phone: logReq.Phone}).First(&user).Error
 	if CheckServerError(w, err) {
 		return
 	}

@@ -15,7 +15,7 @@ const (
 	ErrExplainInvalidJSON        = "Invlalid json schema"
 	ErrExplainDatabaseErr        = "Error while interacting with database"
 	ErrExplainPhoneExists        = "User with this phone already exists"
-	ErrExplainLoginUserNotExists = "User with this id doesn't exist"
+	ErrExplainUserPhoneNotExists = "User with this phone doesn't exist"
 	ErrExplainInvalidPhotoURL    = "Sent photo url is not valid"
 	ErrExplainWrongPassword      = "Wrong password"
 	ErrExplainInvalidMedia       = "Invalid media path"
