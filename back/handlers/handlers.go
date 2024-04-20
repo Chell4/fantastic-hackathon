@@ -35,7 +35,7 @@ type User struct {
 	SecondName   *string
 	LastName     string
 	PasswordHash []byte
-	PhoneNumber  string
+	Phone        string
 	PicturePath  *string
 
 	CreatedAt time.Time

@@ -5,12 +5,14 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type RegisterRequest struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	PhoneNumber string `json:"phone_number"`
+	Phone       string `json:"phone"`
 	FirstName   string `json:"first_name"`
 	SecondName  string `json:"second_name"`
 	LastName    string `json:"last_name"`
@@ -35,10 +37,10 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 	var cnt int64
-	s.DB.Where("google_id = ?", resp.ID).Count(&cnt)
+	s.DB.Where("phone = ?", resp.Phone).Count(&cnt)
 	if cnt == 0 {
 		s.DB.Table("users").Create(&User{
-			ID:           resp.ID,
+			ID:           uuid.NewString(),
 			FirstName:    resp.FirstName,
 			SecondName:   &resp.SecondName,
 			LastName:     resp.LastName,
