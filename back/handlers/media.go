@@ -9,6 +9,9 @@ import (
 )
 
 func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
+	if enableCors(&w, r) {
+		return
+	}
 	switch r.Method {
 	case "GET":
 		s.HandleMediaGet(w, r)

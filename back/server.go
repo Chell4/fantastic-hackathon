@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron/v3"
-	"github.com/rs/cors"
 	"gorm.io/gorm"
 )
 
@@ -48,7 +47,7 @@ func (s *Server) StartServer() error {
 		mulx.HandleFunc(endpoint, handler)
 	}
 
-	err := http.ListenAndServe(s.Address, cors.Default().Handler(mulx))
+	err := http.ListenAndServe(s.Address, mulx)
 	if err != nil {
 		return err
 	}
