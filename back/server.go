@@ -31,7 +31,7 @@ func (s *Server) endpoints() Endpoints {
 
 		`/profile`: s.HandleProfile,
 
-		`/media/{img_name}`: s.HandleMedia,
+		`/media/{path}`: s.HandleMedia,
 	}
 }
 

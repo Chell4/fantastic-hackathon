@@ -43,7 +43,7 @@ func main() {
 		log.Fatalln("Unable to automigrate db:", err)
 	}
 
-	s := NewServer("localhost:8080", db)
+	s := NewServer(os.Getenv("SERVER_ADDRESS"), db)
 
 	s.StartServer()
 }
