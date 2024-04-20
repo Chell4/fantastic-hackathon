@@ -17,6 +17,15 @@ type RegisterRequest struct {
 }
 
 func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		s.HandleRegisterPost(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *HandlersServer) HandleRegisterPost(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{

@@ -8,6 +8,15 @@ import (
 )
 
 func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		s.HandleMediaGet(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *HandlersServer) HandleMediaGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	path, has := vars["path"]
