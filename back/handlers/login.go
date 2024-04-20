@@ -20,6 +20,15 @@ type LoginResponse struct {
 }
 
 func (s *HandlersServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		s.HandleLoginPost(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *HandlersServer) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 	reqJSON, err := io.ReadAll(r.Body)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{

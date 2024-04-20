@@ -12,6 +12,15 @@ type ScheduleRequest struct {
 }
 
 func (s *HandlersServer) HandleSchedule(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		s.HandleSchedulePost(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *HandlersServer) HandleSchedulePost(w http.ResponseWriter, r *http.Request) {
 	var req ScheduleRequest
 
 	body, err := io.ReadAll(r.Body)

@@ -13,6 +13,15 @@ type ProfileResponse struct {
 }
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		s.HandleProfileGet(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request) {
 	user, valid := s.ValidateToken(w, r)
 	if !valid {
 		return
