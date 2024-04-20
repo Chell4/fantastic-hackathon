@@ -40,6 +40,39 @@ func (s *HandlersServer) HandleRegister(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	switch {
+	case req.Phone == "":
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "register",
+			"reason":  "no_phone",
+			"explain": ErrExplainNoPhone,
+		})
+		return
+
+	case req.Password == "":
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "register",
+			"reason":  "no_password",
+			"explain": ErrExplainNoPassword,
+		})
+		return
+	case req.FirstName == "":
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "register",
+			"reason":  "no_first_name",
+			"explain": ErrExplainNoFirstName,
+		})
+		return
+	case req.LastName == "":
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "register",
+			"reason":  "no_last_name",
+			"explain": ErrExplainNoLastName,
+		})
+		return
+	default:
+	}
+
 	var cntUsers int64
 	err = s.DB.Table("users").Where("phone = ?", req.Phone).Count(&cntUsers).Error
 	if CheckServerError(w, err) {

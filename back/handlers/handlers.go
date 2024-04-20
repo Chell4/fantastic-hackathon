@@ -19,6 +19,10 @@ const (
 	ErrExplainInvalidPhotoURL    = "Sent photo url is not valid"
 	ErrExplainWrongPassword      = "Wrong password"
 	ErrExplainInvalidMedia       = "Invalid media path"
+	ErrExplainNoPhone            = "No phone or empty"
+	ErrExplainNoPassword         = "No password or empty"
+	ErrExplainNoFirstName        = "No first name or empty"
+	ErrExplainNoLastName         = "No last name or empty"
 )
 
 func WriteHeadersForFront(w http.ResponseWriter) {
