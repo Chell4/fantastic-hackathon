@@ -25,6 +25,7 @@ type ProfilePostRequest struct {
 	Phone       string `json:"phone"`
 	OldPassword string `json:"old_password"`
 	Password    string `json:"password"`
+	Description string `json:"description"`
 }
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
@@ -123,6 +124,9 @@ func (s *HandlersServer) HandleProfilePost(w http.ResponseWriter, r *http.Reques
 		if CheckServerError(w, err) {
 			return
 		}
+	}
+	if req.Description != "" {
+		user.Description = &req.Description
 	}
 
 	err = s.DB.Table("users").Save(user).Error

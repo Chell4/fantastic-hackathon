@@ -51,6 +51,7 @@ type User struct {
 	LastName     string
 	PasswordHash []byte
 	Phone        string
+	Description  *string
 	PicturePath  *string
 	IsAdmin      bool
 
