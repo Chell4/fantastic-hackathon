@@ -1,17 +1,15 @@
-package handlers
-
 import (
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-type ProfileMatchesGetRequest struct {
+type AdminMatchesGetRequest struct {
 	Offset int `json:"offset"`
 	Size   int `json:"size"`
 }
 
-type ProfileMatchesData struct {
+type AdminMatchesData struct {
 	ID string `json:"id"`
 
 	MetAt     int64 `json:"met_at"`
@@ -19,26 +17,35 @@ type ProfileMatchesData struct {
 	MatchedAt int64 `json:"matched_at"`
 }
 
-type ProfileMatchesGetResponse struct {
-	Matches   []ProfileMatchesData `json:"matches"`
-	LastMatch int64                `json:"last_match"`
+type AdminMatchesGetResponse struct {
+	Matches   []AdminMatchesData `json:"matches"`
+	LastMatch int64              `json:"last_match"`
 }
 
-func (s *HandlersServer) HandleProfileMatches(w http.ResponseWriter, r *http.Request) {
+func (s *HandlersServer) HandleAdminMatches(w http.ResponseWriter, r *http.Request) {
 	if enableCors(&w, r) {
 		return
 	}
 	switch r.Method {
 	case "GET":
-		s.HandleProfileMatchesGet(w, r)
+		s.HandleAdminMatchesGet(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
-func (s *HandlersServer) HandleProfileMatchesGet(w http.ResponseWriter, r *http.Request) {
+func (s *HandlersServer) HandleAdminMatchesGet(w http.ResponseWriter, r *http.Request) {
 	user, valid := s.ValidateToken(w, r)
 	if !valid {
+		return
+	}
+
+	if !user.IsAdmin {
+		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
+			"type":    "admin",
+			"reason":  "not_admin",
+			"explain": ErrExplainNotAdmin,
+		})
 		return
 	}
 
@@ -52,7 +59,7 @@ func (s *HandlersServer) HandleProfileMatchesGet(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var req ProfileMatchesGetRequest
+	var req AdminMatchesGetRequest
 	err = json.Unmarshal(reqBody, &req)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
@@ -65,11 +72,9 @@ func (s *HandlersServer) HandleProfileMatchesGet(w http.ResponseWriter, r *http.
 
 	var matches []CoffeeMatch
 	err = s.DB.Table("coffee_matchs").
-		Where("first_id = ?", user.ID).
-		Or("second_id = ?", user.ID).
-		Order("matched_at").
 		Offset(max(req.Offset, 0)).
 		Limit(min(50, max(req.Offset, 0))).
+		Order("matched_at").
 		Find(&matches).Error
 	if CheckServerError(w, err) {
 		return
@@ -80,8 +85,8 @@ func (s *HandlersServer) HandleProfileMatchesGet(w http.ResponseWriter, r *http.
 		lastMatch = s.LastMatch.Unix()
 	}
 
-	resp := ProfileMatchesGetResponse{
-		Matches:   make([]ProfileMatchesData, 0),
+	resp := AdminMatchesGetResponse{
+		Matches:   make([]AdminMatchesData, 0),
 		LastMatch: lastMatch,
 	}
 	for _, match := range matches {
@@ -102,7 +107,7 @@ func (s *HandlersServer) HandleProfileMatchesGet(w http.ResponseWriter, r *http.
 			meetTime = int64(zz)
 		}
 
-		resp.Matches = append(resp.Matches, ProfileMatchesData{
+		resp.Matches = append(resp.Matches, AdminMatchesData{
 			ID:        id,
 			MetAt:     metAt,
 			MeetTime:  meetTime,
