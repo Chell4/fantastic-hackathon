@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
+import 'dart:html' as html;
 import 'dart:io' as io;
 import 'dart:io';
 import 'dart:math';
@@ -18,6 +18,7 @@ import 'package:material_text_fields/theme/material_text_field_theme.dart';
 import 'package:material_text_fields/utils/form_validation.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 
+import '../entities/User.dart';
 import '../utils/Constants.dart';
 import '../utils/Validation.dart';
 
@@ -32,8 +33,8 @@ class _ChangeProfileState extends State<ChangeProfile>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> _keey = GlobalKey<FormState>();
 
-  final TextEditingController _firstController = TextEditingController(text: MyHomePage.instance.currentUser!.firstName!);
-  final TextEditingController _lastController = TextEditingController(text: MyHomePage.instance.currentUser!.lastName!);
+  final TextEditingController _firstController = TextEditingController(text: MyHomePage.instance!.currentUser!.firstName!);
+  final TextEditingController _lastController = TextEditingController(text: MyHomePage.instance!.currentUser!.lastName!);
   final TextEditingController _passwordController = TextEditingController();
 
   final ShakerController shakeController = ShakerController();
@@ -62,10 +63,12 @@ class _ChangeProfileState extends State<ChangeProfile>
   }
 
   dynamic newAvatar;
+  bool avatarLoaded = false;
 
   onSubmitBtnPressed() async {
     phoneError = null;
     passError = null;
+    avatarLoaded = false;
     try {
       final bytes = await controller?.getFileData(newAvatar);
 
@@ -104,8 +107,7 @@ class _ChangeProfileState extends State<ChangeProfile>
 
       print("!-!-!-");
       if (response.statusCode == HttpStatus.ok) {
-        context.pop();
-        context.pushReplacement("/");
+        context.pushReplacement("/?changedProfile=true");
       }
     } catch (e) {
       print(e);
@@ -146,7 +148,7 @@ class _ChangeProfileState extends State<ChangeProfile>
                                 4,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: Colors.grey,
+                                color: avatarLoaded ? Colors.lightGreen : Colors.grey,
                                 width: 2.0,
                               ),
                               borderRadius: BorderRadius.circular(20),
@@ -162,7 +164,10 @@ class _ChangeProfileState extends State<ChangeProfile>
                                       print('Error: $ev'),
                                   onDrop: (ev) => {
                                     if ((ev).type.startsWith("image")) {
-                                      newAvatar = ev!
+                                      setState(() {
+                                        avatarLoaded = true;
+                                        newAvatar = ev!;
+                                      })
                                     }
                                   },
                                 ),
