@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
@@ -15,8 +16,6 @@ func (s *HandlersServer) HandleMedia(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		s.HandleMediaGet(w, r)
-	case "POST":
-		s.HandleMediaPost(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
@@ -35,7 +34,13 @@ func (s *HandlersServer) HandleMediaGet(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	pic, err := os.ReadFile("media/" + path)
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+
+	pic, err := os.ReadFile(exPath + "/media/" + path)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
 			"type":    "media",

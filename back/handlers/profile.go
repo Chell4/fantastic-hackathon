@@ -15,6 +15,7 @@ type ProfileGetResponse struct {
 	LastName    string `json:"last_name"`
 	Phone       string `json:"phone"`
 	PicturePath string `json:"picture_path"`
+	IsAdmin     bool   `json:"is_admin"`
 }
 
 type ProfilePostRequest struct {
@@ -63,6 +64,7 @@ func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request
 		LastName:    user.LastName,
 		Phone:       user.Phone,
 		PicturePath: picturePath,
+		IsAdmin:     user.IsAdmin,
 	})
 }
 
