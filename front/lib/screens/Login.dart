@@ -182,7 +182,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin  {
                                       filterQuality: FilterQuality.low
                                   ),
                                   SizedBox(height: 20,),
-                                  Image.network("https://oggetto.ru/lfs-images/oggetto-logo/logo-2x.png")
+                                  Image.asset("assets/logo-2x.png")
                                 ],
                               )
                               ),

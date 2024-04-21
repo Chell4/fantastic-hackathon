@@ -49,10 +49,7 @@ class _AdminState extends State<Admin> {
         toolbarHeight: 200,
         elevation: 0,
         titleSpacing: 0,
-        title: Image.network(
-          "https://oggetto.ru/lfs-images/oggetto-logo/logo-2x.png",
-          width: 400,
-        ),
+        title: Image.asset("assets/logo-2x.png", width: 400),
         actions: [
           CircleAvatar(
             radius: 50,
