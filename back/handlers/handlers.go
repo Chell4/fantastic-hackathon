@@ -59,6 +59,8 @@ type User struct {
 }
 
 type RegReq struct {
+	ID string `gorm:"primaryKey"`
+
 	FirstName    string
 	LastName     string
 	PasswordHash []byte
