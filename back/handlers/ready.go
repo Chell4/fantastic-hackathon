@@ -18,7 +18,7 @@ func (s *HandlersServer) HandleReady(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		s.HandleReadyPost(w, r)
 	default:
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		http.Error(w, "zzz"+http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
