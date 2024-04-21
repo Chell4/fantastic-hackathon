@@ -115,6 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
       context.go("/login");
     }
     Uint8List? avatari = await currentUser?.getMedia();
+
+    print(await currentUser!.getMatches());
+
     setState(() {
       avatar = avatari;
       isReady = currentUser!.isReady ?? false;
@@ -208,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
               fit: BoxFit.scaleDown,
               clipBehavior: Clip.hardEdge,
               child: currentUser == null ? SizedBox(height: 1, width: 1,) : Text(
-                currentUser!.description!,
+                currentUser!.description ?? "",
                 style: Theme.of(context).textTheme.bodyLarge!,
               ),
             ),
@@ -250,8 +253,11 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           child: Icon(Icons.admin_panel_settings),
           tooltip: "Admin Panel",
-        )
-            : FloatingActionButton(
+        ) : Container(),
+      ),
+      Padding(
+        padding: EdgeInsets.all(8.0), // Adjust padding as needed
+        child: FloatingActionButton(
           onPressed: () {
             html.window.localStorage.remove("authToken");
             context.go("/login");
