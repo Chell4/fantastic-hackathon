@@ -24,6 +24,10 @@ type UserListGetResponse struct {
 	UserList []UserListData `json:"users"`
 }
 
+type UserListDeleteRequest struct {
+	ID string
+}
+
 func (s *HandlersServer) HandleUserList(w http.ResponseWriter, r *http.Request) {
 	if enableCors(&w, r) {
 		return
@@ -31,6 +35,8 @@ func (s *HandlersServer) HandleUserList(w http.ResponseWriter, r *http.Request) 
 	switch r.Method {
 	case "POST":
 		s.HandleUserListPost(w, r)
+	case "DELETE":
+		s.HandleUserListDelete(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
@@ -113,4 +119,63 @@ func (s *HandlersServer) HandleUserListPost(w http.ResponseWriter, r *http.Reque
 	if CheckServerError(w, err) {
 		return
 	}
+}
+
+func (s *HandlersServer) HandleUserListDelete(w http.ResponseWriter, r *http.Request) {
+	user, valid := s.ValidateToken(w, r)
+	if !valid {
+		return
+	}
+
+	if !user.IsAdmin {
+		ErrorMap(w, http.StatusMethodNotAllowed, map[string]interface{}{
+			"type":    "admin",
+			"reason":  "not_admin",
+			"explain": ErrExplainNotAdmin,
+		})
+		return
+	}
+
+	reqBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "data",
+			"reason":  "body",
+			"explain": ErrExplainCannotReadBody,
+		})
+		return
+	}
+
+	var req UserListDeleteRequest
+	err = json.Unmarshal(reqBody, &req)
+	if err != nil {
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "data",
+			"reason":  "json",
+			"explain": ErrExplainInvalidJSON,
+		})
+		return
+	}
+
+	var cnt int64
+	err = s.DB.Table("users").Where("id = ?", req.ID).Count(&cnt).Error
+	if CheckServerError(w, err) {
+		return
+	}
+
+	if cnt == 0 {
+		ErrorMap(w, http.StatusNotFound, map[string]interface{}{
+			"type":    "id",
+			"reason":  "not_exist",
+			"explain": ErrExplainIDnotExist,
+		})
+		return
+	}
+
+	err = s.DB.Table("users").Where("id = ?", req.ID).Delete(&User{}).Error
+	if CheckServerError(w, err) {
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
