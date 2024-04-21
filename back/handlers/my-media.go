@@ -88,6 +88,10 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	hashDataHex := make([]byte, hex.EncodedLen(len(hashData)))
 	hex.Encode(hashDataHex, hashData)
 
+	if _, err := os.Stat(exPath + "/media/" + string(hashDataHex)); err == nil {
+		return
+	}
+
 	err = os.WriteFile(exPath+"/media/"+string(hashDataHex), picData, 0644)
 	if CheckServerError(w, err) {
 		return
