@@ -222,7 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: widthProp ? EdgeInsets.fromLTRB(20, 40, 20, 8) : EdgeInsets.all(8.0), // Adjust padding as needed
         child: FloatingActionButton(
           onPressed: () async {
-            currentUser.ready(!currentUser.ready);
+            currentUser!.ready(!currentUser!.isReady!);
           },
           child: Icon(Icons.front_hand),
         ),
