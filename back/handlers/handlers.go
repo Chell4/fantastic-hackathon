@@ -57,6 +57,13 @@ type User struct {
 	UpdatedAt time.Time
 }
 
+type RegReq struct {
+	FirstName    string
+	LastName     string
+	PasswordHash []byte
+	Phone        string
+}
+
 func enableCors(w *http.ResponseWriter, r *http.Request) bool {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Vary", "Origin")

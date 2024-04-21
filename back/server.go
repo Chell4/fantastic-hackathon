@@ -35,7 +35,8 @@ func (s *Server) endpoints() Endpoints {
 
 		`/profile`: s.HandleProfile,
 
-		`/admin/add`: s.HandleAddAdmin,
+		`/admin/add`:      s.HandleAddAdmin,
+		`/admin/userlist`: s.HandleUserList,
 
 		`/media/{id}`: s.HandleMedia,
 		`/media`:      s.HandleMyMedia,

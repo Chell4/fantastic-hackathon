@@ -7,7 +7,7 @@ import (
 )
 
 type AddAdminPostRequest struct {
-	Phone string `json:"phone"`
+	ID string `json:"id"`
 }
 
 func (s *HandlersServer) HandleAddAdmin(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +56,7 @@ func (s *HandlersServer) HandleAddAdminPost(w http.ResponseWriter, r *http.Reque
 		})
 	}
 
-	err = s.DB.Table("users").Where("phone = ?", req.Phone).Update("is_admin", true).Error
+	err = s.DB.Table("users").Where("id = ?", req.ID).Update("is_admin", true).Error
 	if CheckServerError(w, err) {
 		return
 	}

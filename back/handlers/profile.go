@@ -10,22 +10,20 @@ import (
 )
 
 type ProfileGetResponse struct {
-	ID          string `json:"id"`
-	FirstName   string `json:"first_name"`
-	SecondName  string `json:"second_name"`
-	LastName    string `json:"last_name"`
-	Phone       string `json:"phone"`
-	PicturePath string `json:"picture_path"`
-	IsAdmin     bool   `json:"is_admin"`
+	ID         string `json:"id"`
+	FirstName  string `json:"first_name"`
+	SecondName string `json:"second_name"`
+	LastName   string `json:"last_name"`
+	Phone      string `json:"phone"`
+	IsAdmin    bool   `json:"is_admin"`
 }
 
 type ProfilePostRequest struct {
-	FirstName   string `json:"first_name"`
-	SecondName  string `json:"second_name"`
-	LastName    string `json:"last_name"`
-	Phone       string `json:"phone"`
-	PicturePath string `json:"picture_path"`
-	Password    string `json:"password"`
+	FirstName  string `json:"first_name"`
+	SecondName string `json:"second_name"`
+	LastName   string `json:"last_name"`
+	Phone      string `json:"phone"`
+	Password   string `json:"password"`
 }
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
@@ -54,19 +52,14 @@ func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request
 	if user.SecondName != nil {
 		secondName = *user.SecondName
 	}
-	picturePath := ""
-	if user.PicturePath != nil {
-		picturePath = *user.PicturePath
-	}
 
 	ErrorMap(w, http.StatusOK, ProfileGetResponse{
-		ID:          user.ID,
-		FirstName:   user.FirstName,
-		SecondName:  secondName,
-		LastName:    user.LastName,
-		Phone:       user.Phone,
-		PicturePath: picturePath,
-		IsAdmin:     user.IsAdmin,
+		ID:         user.ID,
+		FirstName:  user.FirstName,
+		SecondName: secondName,
+		LastName:   user.LastName,
+		Phone:      user.Phone,
+		IsAdmin:    user.IsAdmin,
 	})
 }
 
@@ -107,9 +100,6 @@ func (s *HandlersServer) HandleProfilePost(w http.ResponseWriter, r *http.Reques
 	}
 	if req.Phone != "" {
 		user.Phone = req.Phone
-	}
-	if req.PicturePath != "" {
-		user.PicturePath = &req.PicturePath
 	}
 	if req.Password != "" {
 		user.PasswordHash, err = bcrypt.GenerateFromPassword(
