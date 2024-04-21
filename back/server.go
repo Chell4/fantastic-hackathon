@@ -37,6 +37,7 @@ func (s *Server) endpoints() Endpoints {
 		`/profile`:         s.HandleProfile,
 		`/profile/{id}`:    s.HandleProfileID,
 		`/profile/matches`: s.HandlePing,
+		`/profile/ready`:   s.HandleReady,
 
 		`/admin/add`:      s.HandleAddAdmin,
 		`/admin/userlist`: s.HandleUserList,
