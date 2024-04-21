@@ -33,6 +33,7 @@ const (
 	ErrExplainIDnotExist         = "User id doesn't exist"
 	ErrExplainWrongOldPassword   = "Old password doesn't match"
 	ErrExplainRegRequestExist    = "Registration request with this phone exist"
+	ErrExplainMediaNotExist      = "This user doesn't have profile picture"
 )
 
 const BcryptCost = 10
@@ -54,6 +55,7 @@ type User struct {
 	Phone        string
 	Description  *string
 	PicturePath  *string
+	IsReady      bool
 	IsAdmin      bool
 
 	CreatedAt time.Time
