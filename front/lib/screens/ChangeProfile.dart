@@ -61,10 +61,26 @@ class _ChangeProfileState extends State<ChangeProfile>
     return null;
   }
 
+  dynamic newAvatar;
+
   onSubmitBtnPressed() async {
     phoneError = null;
     passError = null;
     try {
+      final bytes = await controller?.getFileData(newAvatar);
+
+      final responseG = await http.post(
+        Uri.parse(BACKEND + 'media'),
+        headers: <String, String>{
+          HttpHeaders.contentTypeHeader: ContentType.binary.mimeType,
+          HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
+        },
+        body: bytes,
+      );
+
+      print(responseG.statusCode);
+      print(responseG.body);
+
       Map data = {
         "phone": "+${phoneController.value.countryCode}${phoneController.value.nsn}",
         "first_name": _firstController.text,
@@ -97,6 +113,8 @@ class _ChangeProfileState extends State<ChangeProfile>
     // context.go("/login", extra: {"ref": "register"});
   }
 
+  DropzoneViewController? controller;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,13 +122,10 @@ class _ChangeProfileState extends State<ChangeProfile>
         builder: (BuildContext context, BoxConstraints constraints) {
           double maxWidth = max(500, MediaQuery.of(context).size.width * 0.3);
 
-          DropzoneViewController controller;
           return Center(
             child: Container(
-              width: MediaQuery.of(context).size.width -
-                  MediaQuery.of(context).size.width / 15,
-              height: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).size.height / 15,
+              width: MediaQuery.of(context).size.width / 3,
+              height: MediaQuery.of(context).size.height,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Scaffold(
@@ -131,7 +146,7 @@ class _ChangeProfileState extends State<ChangeProfile>
                                 4,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: Colors.black,
+                                color: Colors.grey,
                                 width: 2.0,
                               ),
                               borderRadius: BorderRadius.circular(20),
@@ -145,8 +160,11 @@ class _ChangeProfileState extends State<ChangeProfile>
                                   controller = ctrl,
                                   onError: (String? ev) =>
                                       print('Error: $ev'),
-                                  onDrop: (ev) =>
-                                      print('Drop: ${(ev as html.File).type}'),
+                                  onDrop: (ev) => {
+                                    if ((ev).type.startsWith("image")) {
+                                      newAvatar = ev!
+                                    }
+                                  },
                                 ),
                                 Center(
                                   child: Text("Drop image here"),
@@ -219,7 +237,7 @@ class _ChangeProfileState extends State<ChangeProfile>
                             runSpacing: 0.0,
                             children: [
                               SizedBox(
-                                width: (min(maxWidth, constraints.maxWidth) - 40),
+                                width: (min(maxWidth, constraints.maxWidth) / 2 - 10),
                                 child: MaterialTextField(
                                   controller: _firstController,
                                   keyboardType: TextInputType.name,
@@ -234,7 +252,11 @@ class _ChangeProfileState extends State<ChangeProfile>
                                 ),
                               ),
                               SizedBox(
-                                width: (min(maxWidth, constraints.maxWidth) - 40),
+                                height: 20,
+                                width: 10,
+                              ),
+                              SizedBox(
+                                width: (min(maxWidth, constraints.maxWidth) / 2 - 10),
                                 child: MaterialTextField(
                                   controller: _lastController,
                                   keyboardType: TextInputType.name,

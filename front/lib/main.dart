@@ -186,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   filterQuality: FilterQuality.low,
                 ) :
-                Image.network("$BACKEND/media/${currentUser!.picturePath!}", width: max(128, screenWidth / 4 - 60), fit: BoxFit.scaleDown, filterQuality: FilterQuality.medium,)
+                Image.network("$BACKEND/media/${currentUser!.picturePath!}", width: max(128, screenWidth / 4 - 60), height: max(128, screenWidth / 4 - 60), fit: BoxFit.cover, filterQuality: FilterQuality.medium,)
               ],
             ),
           ),
