@@ -8,17 +8,21 @@ import 'dart:html' as html;
 import '../utils/Constants.dart';
 
 class User {
-  final String? phone, firstName, secondName, lastName, picturePath;
+  final String? id, phone, firstName, secondName, description, lastName, picturePath;
+  final bool? isAdmin;
 
-  User(this.phone, this.firstName, this.secondName, this.lastName, this.picturePath);
+  User(this.id, this.phone, this.firstName, this.secondName, this.lastName, this.description, this.picturePath, this.isAdmin);
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
+      json['id'],
       json['phone'],
       json['first_name'],
       json['second_name'],
       json['last_name'],
+      json['description'],
       json['picture_path'],
+      json['is_admin']
     );
   }
 
@@ -36,7 +40,6 @@ class User {
     }
 
     if (response.statusCode == HttpStatus.ok) {
-      print(response.body);
       MyHomePage.instance!.currentUser = User.fromJson(jsonDecode(response.body));
       return true;
     }
@@ -57,9 +60,10 @@ class User {
     }
 
     if (response.statusCode == HttpStatus.ok) {
-      print(response.body);
       return Uint8List.fromList(response.body.codeUnits);
     }
     return Uint8List(0);
   }
+
+
 }

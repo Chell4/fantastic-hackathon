@@ -74,7 +74,6 @@ final GoRouter router = GoRouter(routes: [
     return MyHomePage();
   }),
   GoRoute(path: '/login', name: "Login", builder: (_, __) {
-    print(__.extra);
     Map<String, dynamic>? args =
     __.extra as Map<String, dynamic>?;
     return Login(ref: args?["ref"]);
@@ -154,7 +153,6 @@ class _MyHomePageState extends State<MyHomePage> {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     widthProp = screenWidth >= 700;
-    print(screenWidth);
 
     image = AvatarImage(avatar: avatar, width: max(128, screenWidth / 4 - 60));
 
@@ -175,27 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.white,
                   ),
                 ),
-                currentUser == null
-                    || currentUser!.picturePath == null
-                    || currentUser!.picturePath!.isEmpty
-                    ?
-                Lottie.asset(
-                  "assets/Cup.json",
-                  frameRate: const FrameRate(60),
-                  repeat: true,
-                  width: max(128, screenWidth / 4 - 60),
-                  fit: BoxFit.fitWidth,
-                  onLoaded: (composition) {
-                    // Configure the AnimationController with the duration of the
-                    // Lottie file and start the animation.
-                    var _gifController;
-                    _gifController
-                      ..duration = composition.duration
-                      ..forward()
-                      ..repeat();
-                  },
-                  filterQuality: FilterQuality.low,
-                ) : image!
+                image!
               ],
             ),
           ),
@@ -223,6 +201,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w400),
               ),
             ),
+            SizedBox(height: 10,),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              clipBehavior: Clip.hardEdge,
+              child: currentUser == null ? SizedBox(height: 1, width: 1,) : Text(
+                currentUser!.description!,
+                style: Theme.of(context).textTheme.bodyLarge!,
+              ),
+            ),
           ],
         ),
       )
@@ -246,20 +233,22 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 context.push("/changeProfile");
               },
+              clipBehavior: Clip.none,
               icon: Icon(Icons.person),
-              label: Text("Edit profile"),
+              label: Text("Edit profile", softWrap: false, overflow: TextOverflow.clip),
             ),
           ),
           SizedBox(width: 10), // Промежуток между кнопками
-          Expanded(
+          currentUser != null && currentUser!.isAdmin! ? Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
                 context.go("/admin");
               },
+              clipBehavior: Clip.none,
               icon: Icon(Icons.admin_panel_settings),
-              label: Text("Admin Panel"),
+              label: Text("Admin Panel", softWrap: false, overflow: TextOverflow.clip),
             ),
-          ),
+          ) : Container(),
           SizedBox(width: 10), // Промежуток между кнопками
           Expanded(
             child: ElevatedButton.icon(
@@ -267,8 +256,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 html.window.localStorage.remove("authToken");
                 context.go("/login");
               },
+              clipBehavior: Clip.none,
               icon: Icon(Icons.logout),
-              label: Text("Logout"),
+              label: const Text("Logout", softWrap: false, overflow: TextOverflow.clip,),
             ),
           ),
         ],
@@ -278,8 +268,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return FutureBuilder<void>(
         future: _initFuture, // Pass the future that represents the asynchronous operation
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting || currentUser == null) {
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             // If an error occurred while fetching data, display an error message
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -292,49 +282,59 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             }
             return Scaffold(
-              backgroundColor: Colors.black12,
+              backgroundColor: Color.fromARGB(255, 237, 180, 0),
               body: Row(
                 children: [
                   // Первая половина экрана
                   !isSecondHalfVisible || widthProp
                       ? Container(
-                    color: Colors.white,
-                    width: widthProp ? screenWidth / 2 - 1 : screenWidth,
+                    color: Colors.transparent,
+                    width: widthProp ? screenWidth / 2 : screenWidth,
                     height: double.infinity,
                     // You can add any child widget here
                   )
                       : Container(),
-                  // Пустой контейнер, если вторая половина скрыта
-                  widthProp
-                      ? SizedBox(width: 2, height: double.infinity)
-                      : Container(),
-                  // Вторая половина экрана
                   isSecondHalfVisible ? Expanded(
                     child: Container(
-                      color: Colors.white,
+                      color: Colors.transparent,
                       height: double.infinity,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 40, 20, 40),
-                        child: Form(
-                          key: GlobalKey(),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: <Widget>[
-                              SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: (widthProp ? profile : <Widget>[
-                                    FittedBox(child: Row(children: profile,),
-                                      fit: BoxFit.scaleDown,),
-                                  ]) + [
-                                    SizedBox(height: widthProp ? min(
-                                        300, screenHeight / 6) : min(
-                                        screenHeight / 1.5, screenWidth / 1.5) -
-                                        40,)
-                                  ],
-                                ),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(40, 40, 40, 40),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5), // Цвет тени
+                                spreadRadius: 3, // Радиус размытия тени
+                                blurRadius: 7, // Радиус размытия тени
+                                offset: Offset(0, 3), // Смещение тени по горизонтали и вертикали
                               ),
-                            ] + buttons,
+                            ],
+                          ),
+                          child: Form(
+                            key: GlobalKey(),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: (widthProp ? profile : <Widget>[
+                                      FittedBox(child: Row(children: profile,),
+                                        fit: BoxFit.scaleDown,),
+                                    ]) + [
+                                      SizedBox(height: widthProp ? min(
+                                          300, screenHeight / 6) : min(
+                                          screenHeight / 1.5, screenWidth / 1.5) -
+                                          40,)
+                                    ],
+                                  ),
+                                ),
+                              ] + buttons,
+                            ),
                           ),
                         ),
                       ),
