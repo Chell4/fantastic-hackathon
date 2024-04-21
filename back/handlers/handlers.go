@@ -29,6 +29,8 @@ const (
 	ErrExplainInvalidToken       = "Provided token is invalid"
 	ErrExplainTokenExpired       = "Provided token expired"
 	ErrExplainNotAdmin           = "This is available only for admins"
+	ErrExplainMediaIDNotGiven    = "User id for media not given"
+	ErrExplainIDnotExist         = "User id doesn't exist"
 )
 
 const BcryptCost = 10
