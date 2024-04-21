@@ -1,1 +1,1 @@
-String BACKEND = "localhost:8488/";
+String BACKEND = "http://144.21.39.77:8488/";
