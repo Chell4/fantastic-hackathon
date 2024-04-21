@@ -15,6 +15,7 @@ type ProfileGetResponse struct {
 	SecondName string `json:"second_name"`
 	LastName   string `json:"last_name"`
 	Phone      string `json:"phone"`
+	Descripton string `json:"description"`
 	IsAdmin    bool   `json:"is_admin"`
 }
 
@@ -55,12 +56,18 @@ func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request
 		secondName = *user.SecondName
 	}
 
+	description := ""
+	if user.Description != nil {
+		description = *user.Description
+	}
+
 	ErrorMap(w, http.StatusOK, ProfileGetResponse{
 		ID:         user.ID,
 		FirstName:  user.FirstName,
 		SecondName: secondName,
 		LastName:   user.LastName,
 		Phone:      user.Phone,
+		Descripton: description,
 		IsAdmin:    user.IsAdmin,
 	})
 }
