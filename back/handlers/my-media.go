@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"crypto/md5"
-	"encoding/base64"
+	"encoding/hex"
 	"io"
 	"net/http"
 	"os"
@@ -51,27 +51,6 @@ func (s *HandlersServer) HandleMyMediaGet(w http.ResponseWriter, r *http.Request
 	w.Write(pic)
 }
 
-func sanitizeFilename(filename string) string {
-	allowedChars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-@#$%^&*"
-	var result []byte
-	for i := range filename {
-		char := filename[i]
-		isAllowed := false
-		for j := range allowedChars {
-			if char == allowedChars[j] {
-				isAllowed = true
-				break
-			}
-		}
-		if isAllowed {
-			result = append(result, char)
-		} else {
-			result = append(result, '_')
-		}
-	}
-	return string(result)
-}
-
 func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Request) {
 	user, valid := s.ValidateToken(w, r)
 	if !valid {
@@ -100,15 +79,15 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	}
 	hashData := hash.Sum(nil)
 
-	hashDataStr := base64.StdEncoding.EncodeToString(hashData)
-	hashDataStr = sanitizeFilename(hashDataStr)
+	hashDataHex := make([]byte, hex.EncodedLen(len(hashData)))
+	hex.Encode(hashDataHex, hashData)
 
-	err = os.WriteFile(exPath+"/media/"+hashDataStr, picData, 0644)
+	err = os.WriteFile(exPath+"/media/"+string(hashDataHex), picData, 0644)
 	if CheckServerError(w, err) {
 		return
 	}
 
-	err = s.DB.Table("users").Where("id = ?", user.ID).Update("picture_path", hashDataStr).Error
+	err = s.DB.Table("users").Where("id = ?", user.ID).Update("picture_path", string(hashDataHex)).Error
 	if CheckServerError(w, err) {
 		return
 	}
