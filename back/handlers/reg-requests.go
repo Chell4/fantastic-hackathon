@@ -155,31 +155,30 @@ func (s *HandlersServer) HandleRegRequestsPut(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if !req.Accept {
-		err = s.DB.
-			Table("reg_reqs").
-			Where("id = ?", req.ID).
-			Delete(&RegReq{}).
-			Error
+	if req.Accept {
+		var regReq RegReq
+		err = s.DB.Table("reg_reqs").Where("id = ?", req.ID).Take(&regReq).Error
 		if CheckServerError(w, err) {
 			return
 		}
-		return
+
+		err = s.DB.Table("users").Create(&User{
+			ID:           regReq.ID,
+			FirstName:    regReq.FirstName,
+			LastName:     regReq.LastName,
+			PasswordHash: regReq.PasswordHash,
+			Phone:        regReq.Phone,
+		}).Error
+		if CheckServerError(w, err) {
+			return
+		}
 	}
 
-	var regReq RegReq
-	err = s.DB.Table("reg_reqs").Where("id = ?", req.ID).Take(&regReq).Error
-	if CheckServerError(w, err) {
-		return
-	}
-
-	err = s.DB.Table("users").Create(&User{
-		ID:           regReq.ID,
-		FirstName:    regReq.FirstName,
-		LastName:     regReq.LastName,
-		PasswordHash: regReq.PasswordHash,
-		Phone:        regReq.Phone,
-	}).Error
+	err = s.DB.
+		Table("reg_reqs").
+		Where("id = ?", req.ID).
+		Delete(&RegReq{}).
+		Error
 	if CheckServerError(w, err) {
 		return
 	}
