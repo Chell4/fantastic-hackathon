@@ -255,7 +255,7 @@ class _AdminState extends State<Admin> {
                       Expanded(
                         child: ListView.builder(
                           padding: EdgeInsets.all(16),
-                          itemCount: users.length,
+                          itemCount: 0,
                           itemBuilder: (context, index) {
                             return ListTile(
                               title: Text(users[index].id!),
