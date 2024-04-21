@@ -42,6 +42,7 @@ func (s *Server) endpoints() Endpoints {
 		`/admin/userlist`: s.HandleUserList,
 		`/admin/requests`: s.HandleRegRequests,
 		`/admin/coffee`:   s.HandleCoffee,
+		`/admin/matches`:  s.HandlePing,
 
 		`/media/{id}`: s.HandleMedia,
 		`/media`:      s.HandleMyMedia,
