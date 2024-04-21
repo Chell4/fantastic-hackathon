@@ -92,9 +92,9 @@ class User {
           HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
           HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
         },
-        body: {
+        body: jsonEncode({
           "ready": ready
-        }
+        })
     );
 
     if (response.statusCode == HttpStatus.unauthorized) {
