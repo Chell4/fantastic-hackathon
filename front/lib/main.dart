@@ -117,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Uint8List? avatari = await currentUser?.getMedia();
     setState(() {
       avatar = avatari;
+      isReady = currentUser!.isReady ?? false;
     });
   }
 
@@ -138,6 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Key imageKey = GlobalKey();
 
   bool newAvatar = false;
+  bool isReady = false;
 
   AvatarImage? image;
 
@@ -156,7 +158,6 @@ class _MyHomePageState extends State<MyHomePage> {
     widthProp = screenWidth >= 700;
 
     image = AvatarImage(avatar: avatar, width: max(128, screenWidth / 4 - 60));
-
 
     List<Widget> profile = [
       FittedBox(fit: BoxFit.scaleDown, child: Material(
@@ -222,9 +223,12 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: widthProp ? EdgeInsets.fromLTRB(20, 40, 20, 8) : EdgeInsets.all(8.0), // Adjust padding as needed
         child: FloatingActionButton(
           onPressed: () async {
-            currentUser!.ready(!currentUser!.isReady!);
+            print(await currentUser!.ready(!currentUser!.isReady!));
+            setState(() {
+              isReady = !currentUser!.isReady!;
+            });
           },
-          child: Icon(Icons.front_hand),
+          child: Icon(Icons.front_hand, color: isReady ? Colors.green : Colors.black,),
         ),
       ),
       Padding(
