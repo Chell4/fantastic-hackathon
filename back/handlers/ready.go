@@ -26,7 +26,6 @@ func (s *HandlersServer) HandleReadyPost(w http.ResponseWriter, r *http.Request)
 	user, valid := s.ValidateToken(w, r)
 	if !valid {
 		return
-
 	}
 
 	reqBody, err := io.ReadAll(r.Body)
