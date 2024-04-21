@@ -32,6 +32,7 @@ const (
 	ErrExplainMediaIDNotGiven    = "User id for media not given"
 	ErrExplainIDnotExist         = "User id doesn't exist"
 	ErrExplainWrongOldPassword   = "Old password doesn't match"
+	ErrExplainRegRequestExist    = "Registration request with this phone exist"
 )
 
 const BcryptCost = 10

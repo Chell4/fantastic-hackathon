@@ -84,7 +84,7 @@ func (s *HandlersServer) HandleRegisterPost(w http.ResponseWriter, r *http.Reque
 	}
 
 	var cnt int64
-	err = s.DB.Table("reg_reqs").Where("phone = ?", req.Phone).Count(&cnt).Error
+	err = s.DB.Table("users").Where("phone = ?", req.Phone).Count(&cnt).Error
 	if CheckServerError(w, err) {
 		return
 	}
@@ -94,6 +94,20 @@ func (s *HandlersServer) HandleRegisterPost(w http.ResponseWriter, r *http.Reque
 			"type":    "register",
 			"reason":  "phone_exist",
 			"explain": ErrExplainPhoneExists,
+		})
+		return
+	}
+
+	err = s.DB.Table("reg_reqs").Where("phone = ?", req.Phone).Count(&cnt).Error
+	if CheckServerError(w, err) {
+		return
+	}
+
+	if cnt != 0 {
+		ErrorMap(w, http.StatusConflict, map[string]interface{}{
+			"type":    "register",
+			"reason":  "phone_exist",
+			"explain": ErrExplainRegRequestExist,
 		})
 		return
 	}
