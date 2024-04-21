@@ -33,9 +33,11 @@ class _ChangeProfileState extends State<ChangeProfile>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> _keey = GlobalKey<FormState>();
 
-  final TextEditingController _firstController = TextEditingController(text: MyHomePage.instance!.currentUser!.firstName!);
-  final TextEditingController _lastController = TextEditingController(text: MyHomePage.instance!.currentUser!.lastName!);
+  final TextEditingController _firstController = TextEditingController(text: MyHomePage.instance!.currentUser!.firstName??"");
+  final TextEditingController _lastController = TextEditingController(text: MyHomePage.instance!.currentUser!.lastName??"");
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController(text: MyHomePage.instance!.currentUser!.description??"");
 
   final ShakerController shakeController = ShakerController();
 
@@ -70,28 +72,39 @@ class _ChangeProfileState extends State<ChangeProfile>
     passError = null;
     avatarLoaded = false;
     try {
-      final bytes = await controller?.getFileData(newAvatar);
+      if (newAvatar != null) {
+        final bytes = await controller?.getFileData(newAvatar);
 
-      final responseG = await http.post(
-        Uri.parse(BACKEND + 'media'),
-        headers: <String, String>{
-          HttpHeaders.contentTypeHeader: ContentType.binary.mimeType,
-          HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
-        },
-        body: bytes,
-      );
-
-      print(responseG.statusCode);
-      print(responseG.body);
+        final responseG = await http.post(
+          Uri.parse(BACKEND + 'media'),
+          headers: <String, String>{
+            HttpHeaders.contentTypeHeader: ContentType.binary.mimeType,
+            HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
+          },
+          body: bytes,
+        );
+      }
 
       Map data = {
         "phone": "+${phoneController.value.countryCode}${phoneController.value.nsn}",
         "first_name": _firstController.text,
         "last_name": _lastController.text,
+        "description": _descriptionController.text
       };
 
-      if (_passwordController.text.isNotEmpty && _passwordController.text.length >= 8)
-        data["password"] = _passwordController.text;
+      if (_oldPasswordController.text.isNotEmpty) {
+        if (_oldPasswordController.text.length >= 8) data["old_password"] = _oldPasswordController.text;
+        else {
+          return;
+        }
+      }
+
+      if (_passwordController.text.isNotEmpty) {
+        if (_passwordController.text.length >= 8) data["password"] = _passwordController.text;
+        else {
+          return;
+        }
+      }
 
       print(json.encode(data));
 
@@ -106,8 +119,23 @@ class _ChangeProfileState extends State<ChangeProfile>
       var dataa = response;
 
       print("!-!-!-");
+      print(dataa.body);
+
+      if (dataa.body.contains('"reason":"old_password"')) {
+        passError = dataa.body.substring('{"explain":"'.length);
+        passError = passError?.substring(0, passError!.indexOf("\""));
+        var value = _oldPasswordController.value;
+
+        setState(() {
+          _oldPasswordController.value = TextEditingValue();
+          _oldPasswordController.value = value;
+        });
+      }
+
+      _keey.currentState?.validate();
+
       if (response.statusCode == HttpStatus.ok) {
-        context.pushReplacement("/?changedProfile=true");
+        context.pushReplacement("/");
       }
     } catch (e) {
       print(e);
@@ -211,6 +239,24 @@ class _ChangeProfileState extends State<ChangeProfile>
                           height: min(maxWidth, constraints.maxWidth) * 0.025,
                         ),
                         MaterialTextField(
+                          controller: _oldPasswordController,
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                          hint: "Old Password",
+                          labelText: "Old Password",
+                          theme: FilledOrOutlinedTextTheme(
+                            enabledColor: Colors.grey,
+                            focusedColor: Colors.grey.shade400,
+                            fillColor: Colors.transparent,
+                          ),
+                          errorText: passError,
+                          textInputAction: TextInputAction.next,
+                          prefixIcon: const Icon(Icons.lock_open),
+                        ),
+                        SizedBox(
+                          height: min(maxWidth, constraints.maxWidth) * 0.025,
+                        ),
+                        MaterialTextField(
                           controller: _passwordController,
                           keyboardType: TextInputType.visiblePassword,
                           obscureText: true,
@@ -280,6 +326,21 @@ class _ChangeProfileState extends State<ChangeProfile>
                         ),
                         SizedBox(
                           height: min(maxWidth, constraints.maxWidth) * 0.05,
+                        ),
+                        MaterialTextField(
+                          controller: _descriptionController,
+                          keyboardType: TextInputType.multiline,
+                          hint: "Description",
+                          labelText: "Description",
+                          theme: FilledOrOutlinedTextTheme(
+                            enabledColor: Colors.grey,
+                            focusedColor: Colors.grey.shade400,
+                            fillColor: Colors.transparent,
+                          ),
+                          textInputAction: TextInputAction.newline,
+                        ),
+                        SizedBox(
+                          height: min(maxWidth, constraints.maxWidth) * 0.025,
                         ),
                         ElevatedButton(
                           onPressed: onSubmitBtnPressed,

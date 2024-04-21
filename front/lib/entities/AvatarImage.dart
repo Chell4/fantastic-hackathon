@@ -22,8 +22,6 @@ class AvatarImage extends StatelessWidget {
       fit: BoxFit.cover,
       filterQuality: FilterQuality.medium,
       errorBuilder: (BuildContext context, Object obj, StackTrace? e) {
-        print(avatar);
-        print(e);
         return Lottie.asset(
           "assets/Cup.json",
           frameRate: const FrameRate(60),
