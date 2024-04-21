@@ -1,3 +1,5 @@
+package handlers
+
 import (
 	"encoding/json"
 	"io"
