@@ -31,6 +31,7 @@ const (
 	ErrExplainNotAdmin           = "This is available only for admins"
 	ErrExplainMediaIDNotGiven    = "User id for media not given"
 	ErrExplainIDnotExist         = "User id doesn't exist"
+	ErrExplainWrongOldPassword   = "Old password doesn't match"
 )
 
 const BcryptCost = 10

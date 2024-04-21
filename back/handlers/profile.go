@@ -19,11 +19,12 @@ type ProfileGetResponse struct {
 }
 
 type ProfilePostRequest struct {
-	FirstName  string `json:"first_name"`
-	SecondName string `json:"second_name"`
-	LastName   string `json:"last_name"`
-	Phone      string `json:"phone"`
-	Password   string `json:"password"`
+	FirstName   string `json:"first_name"`
+	SecondName  string `json:"second_name"`
+	LastName    string `json:"last_name"`
+	Phone       string `json:"phone"`
+	OldPassword string `json:"old_password"`
+	Password    string `json:"password"`
 }
 
 func (s *HandlersServer) HandleProfile(w http.ResponseWriter, r *http.Request) {
@@ -102,6 +103,19 @@ func (s *HandlersServer) HandleProfilePost(w http.ResponseWriter, r *http.Reques
 		user.Phone = req.Phone
 	}
 	if req.Password != "" {
+		err = bcrypt.CompareHashAndPassword(
+			user.PasswordHash,
+			[]byte(req.OldPassword)[:min(len(req.OldPassword), 72)],
+		)
+		if err != nil {
+			ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+				"type":    "edit",
+				"reason":  "old_password",
+				"explain": ErrExplainWrongOldPassword,
+			})
+			return
+		}
+
 		user.PasswordHash, err = bcrypt.GenerateFromPassword(
 			[]byte(req.Password)[:min(len(req.Password), 72)],
 			BcryptCost,
