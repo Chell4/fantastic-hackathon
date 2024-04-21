@@ -48,11 +48,21 @@ func (s *HandlersServer) HandleMediaGet(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var path string
-	err = s.DB.Table("users").Select("picture_path").Where("id = ?", id).Take(&path).Error
+	var pathNul *string
+	err = s.DB.Table("users").Select("picture_path").Where("id = ?", id).Take(&pathNul).Error
 	if CheckServerError(w, err) {
 		return
 	}
+
+	if pathNul == nil {
+		ErrorMap(w, http.StatusNotFound, map[string]interface{}{
+			"type":    "media",
+			"reason":  "not_exist",
+			"explain": ErrExplainMediaNotExist,
+		})
+	}
+
+	path := *pathNul
 
 	ex, err := os.Executable()
 	if CheckServerError(w, err) {
