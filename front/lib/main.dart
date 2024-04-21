@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:url_strategy/url_strategy.dart';
 
+import 'entities/Coffee.dart';
 import 'entities/User.dart';
 
 void main() {
@@ -216,54 +217,47 @@ class _MyHomePageState extends State<MyHomePage> {
 
     ];
 
-    List<Widget> buttons = [
-      Row(
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                // Действия при нажатии на первую кнопку
-              },
-              child: Text("Button 1"),
-            ),
-          ),
-          SizedBox(width: 10), // Промежуток между кнопками
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {
-                context.push("/changeProfile");
-              },
-              clipBehavior: Clip.none,
-              icon: Icon(Icons.person),
-              label: Text("Edit profile", softWrap: false, overflow: TextOverflow.clip),
-            ),
-          ),
-          SizedBox(width: 10), // Промежуток между кнопками
-          currentUser != null && currentUser!.isAdmin! ? Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {
-                context.go("/admin");
-              },
-              clipBehavior: Clip.none,
-              icon: Icon(Icons.admin_panel_settings),
-              label: Text("Admin Panel", softWrap: false, overflow: TextOverflow.clip),
-            ),
-          ) : Container(),
-          SizedBox(width: 10), // Промежуток между кнопками
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {
-                html.window.localStorage.remove("authToken");
-                context.go("/login");
-              },
-              clipBehavior: Clip.none,
-              icon: Icon(Icons.logout),
-              label: const Text("Logout", softWrap: false, overflow: TextOverflow.clip,),
-            ),
-          ),
-        ],
+    List<Widget> floatingButtons = [
+      Padding(
+        padding: widthProp ? EdgeInsets.fromLTRB(20, 40, 20, 8) : EdgeInsets.all(8.0), // Adjust padding as needed
+        child: FloatingActionButton(
+          onPressed: () async {
+            currentUser!.ready(!currentUser!.isReady!);
+          },
+          child: Icon(Icons.front_hand),
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(8.0), // Adjust padding as needed
+        child: FloatingActionButton(
+          onPressed: () {
+            context.push("/changeProfile");
+          },
+          child: Icon(Icons.person),
+          tooltip: "Edit profile",
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(8.0), // Adjust padding as needed
+        child: currentUser != null && currentUser!.isAdmin!
+            ? FloatingActionButton(
+          onPressed: () {
+            context.go("/admin");
+          },
+          child: Icon(Icons.admin_panel_settings),
+          tooltip: "Admin Panel",
+        )
+            : FloatingActionButton(
+          onPressed: () {
+            html.window.localStorage.remove("authToken");
+            context.go("/login");
+          },
+          child: Icon(Icons.logout),
+          tooltip: "Logout",
+        ),
       ),
     ];
+
 
     return FutureBuilder<void>(
         future: _initFuture, // Pass the future that represents the asynchronous operation
@@ -291,9 +285,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.transparent,
                     width: widthProp ? screenWidth / 2 : screenWidth,
                     height: double.infinity,
-                    // You can add any child widget here
-                  )
-                      : Container(),
+                    child: Container(
+                        color: Colors.transparent,
+                        height: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                          child: Column(
+                            children: [
+                              Coffee(id: "1", width: widthProp ? screenWidth / 2 : screenWidth - 40)
+                            ],
+                          )
+                          )
+                        ),
+                    ) : Container(),
                   isSecondHalfVisible ? Expanded(
                     child: Container(
                       color: Colors.transparent,
@@ -333,7 +337,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ],
                                   ),
                                 ),
-                              ] + buttons,
+                              ] ,
                             ),
                           ),
                         ),
@@ -343,19 +347,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
               // Кнопка для открытия/скрытия второй половины экрана
-              floatingActionButton: widthProp ? null : FloatingActionButton(
-                onPressed: () {
-                  setState(() {
-                    isSecondHalfVisible =
-                    !isSecondHalfVisible; // Переключение состояния видимости второй половины экрана
-                  });
-                },
-                isExtended: true,
-                child: Icon(isSecondHalfVisible ? Icons.arrow_forward : Icons
-                    .arrow_back), // Иконка меняется в зависимости от состояния
+              floatingActionButton: widthProp ? Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: floatingButtons,
+              ) : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: floatingButtons + [ // Add additional FloatingActionButton here if needed
+                  FloatingActionButton(
+                    onPressed: () {
+                      setState(() {
+                        isSecondHalfVisible = !isSecondHalfVisible;
+                      });
+                    },
+                    isExtended: true,
+                    child: Icon(isSecondHalfVisible ? Icons.arrow_forward : Icons.arrow_back),
+                  ),
+                ],
               ),
-              floatingActionButtonLocation: FloatingActionButtonLocation
-                  .centerFloat, // Расположение кнопки по центру внизу
+              floatingActionButtonLocation: widthProp ? FloatingActionButtonLocation.endDocked : FloatingActionButtonLocation
+                  .endDocked, // Расположение кнопки по центру внизу
             );
           }
         });
