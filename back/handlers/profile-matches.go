@@ -67,7 +67,7 @@ func (s *HandlersServer) HandleProfileMatchesGet(w http.ResponseWriter, r *http.
 	err = s.DB.Table("coffee_matchs").
 		Where("first_id = ?", user.ID).
 		Or("second_id = ?", user.ID).
-		Order("matched_at").
+		Order("matched_at desc").
 		Offset(max(req.Offset, 0)).
 		Limit(min(50, max(req.Offset, 0))).
 		Find(&matches).Error

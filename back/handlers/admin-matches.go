@@ -76,7 +76,7 @@ func (s *HandlersServer) HandleAdminMatchesGet(w http.ResponseWriter, r *http.Re
 	err = s.DB.Table("coffee_matchs").
 		Offset(max(req.Offset, 0)).
 		Limit(min(50, max(req.Offset, 0))).
-		Order("matched_at").
+		Order("matched_at desc").
 		Find(&matches).Error
 	if CheckServerError(w, err) {
 		return
