@@ -29,7 +29,7 @@ const (
 	ErrExplainInvalidToken       = "Provided token is invalid"
 	ErrExplainTokenExpired       = "Provided token expired"
 	ErrExplainNotAdmin           = "This is available only for admins"
-	ErrExplainMediaIDNotGiven    = "User id for media not given"
+	ErrExplainIDNotGiven         = "User id expected but not given"
 	ErrExplainIDnotExist         = "User id doesn't exist"
 	ErrExplainWrongOldPassword   = "Old password doesn't match"
 	ErrExplainRegRequestExist    = "Registration request with this phone exist"

@@ -33,7 +33,8 @@ func (s *Server) endpoints() Endpoints {
 		`/auth/login`:           s.HandleLogin,
 		`/auth/register`:        s.HandleRegister,
 
-		`/profile`: s.HandleProfile,
+		`/profile`:      s.HandleProfile,
+		`/profile/{id}`: s.HandleProfileID,
 
 		`/admin/add`:      s.HandleAddAdmin,
 		`/admin/userlist`: s.HandleUserList,
@@ -41,7 +42,6 @@ func (s *Server) endpoints() Endpoints {
 
 		`/media/{id}`: s.HandleMedia,
 		`/media`:      s.HandleMyMedia,
-		`/schedule`:   s.HandleSchedule,
 	}
 }
 

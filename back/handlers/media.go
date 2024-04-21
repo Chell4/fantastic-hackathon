@@ -28,7 +28,7 @@ func (s *HandlersServer) HandleMediaGet(w http.ResponseWriter, r *http.Request) 
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
 			"type":    "data",
 			"reason":  "id",
-			"explain": ErrExplainMediaIDNotGiven,
+			"explain": ErrExplainIDNotGiven,
 		})
 		return
 	}
