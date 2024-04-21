@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	. "back/handlers"
 
@@ -33,8 +34,9 @@ func (s *Server) endpoints() Endpoints {
 		`/auth/login`:           s.HandleLogin,
 		`/auth/register`:        s.HandleRegister,
 
-		`/profile`:      s.HandleProfile,
-		`/profile/{id}`: s.HandleProfileID,
+		`/profile`:         s.HandleProfile,
+		`/profile/{id}`:    s.HandleProfileID,
+		`/profile/matches`: s.HandlePing,
 
 		`/admin/add`:      s.HandleAddAdmin,
 		`/admin/userlist`: s.HandleUserList,
@@ -53,7 +55,15 @@ func (s *Server) StartServer() error {
 		mulx.HandleFunc(endpoint, handler)
 	}
 
-	err := http.ListenAndServe(s.Address, mulx)
+	cert := os.Getenv("CERTIFICATE")
+	key := os.Getenv("SSL_KEY")
+
+	var err error
+	if cert == "" || key == "" {
+		err = http.ListenAndServe(s.Address, mulx)
+	} else {
+		err = http.ListenAndServeTLS(s.Address, cert, key, mulx)
+	}
 	if err != nil {
 		return err
 	}
