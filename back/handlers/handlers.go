@@ -59,6 +59,7 @@ type User struct {
 	PicturePath  *string
 	IsReady      bool
 	IsAdmin      bool
+	LastMatch    *time.Time
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

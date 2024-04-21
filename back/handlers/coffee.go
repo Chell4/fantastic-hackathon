@@ -12,6 +12,7 @@ func (s *HandlersServer) HandleCoffee(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.Method {
 	case "POST":
+		s.HandleCoffeePost(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
@@ -48,13 +49,25 @@ func (s *HandlersServer) HandleCoffeePost(w http.ResponseWriter, r *http.Request
 	})
 
 	for i := 0; i < len(users)-1; i += 2 {
+		firstUser := users[i]
+		secondUser := users[i+1]
+
 		s.DB.Table("coffee_matchs").Save(&CoffeeMatch{
-			FirstID:  users[i].ID,
-			SecondID: users[i+1].ID,
+			FirstID:  firstUser.ID,
+			SecondID: secondUser.ID,
 
 			MatchedAt: now,
 		})
+		firstUser.LastMatch = &now
+		secondUser.LastMatch = &now
+
+		err = s.DB.Table("coffee_matchs").Save(&firstUser).Error
+		if CheckServerError(w, err) {
+			return
+		}
+		err = s.DB.Table("coffee_matchs").Save(&secondUser).Error
+		if CheckServerError(w, err) {
+			return
+		}
 	}
-	
-	if len(users) % 2 == 	
 }
