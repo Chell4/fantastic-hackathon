@@ -29,14 +29,14 @@ func (s *HandlersServer) HandleUserList(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	switch r.Method {
-	case "GET":
-		s.HandleUserListGet(w, r)
+	case "POST":
+		s.HandleUserListPost(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
-func (s *HandlersServer) HandleUserListGet(w http.ResponseWriter, r *http.Request) {
+func (s *HandlersServer) HandleUserListPost(w http.ResponseWriter, r *http.Request) {
 	user, valid := s.ValidateToken(w, r)
 	if !valid {
 		return
