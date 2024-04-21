@@ -43,6 +43,8 @@ type HandlersServer struct {
 	DB          *gorm.DB
 	Cron        *cron.Cron
 	CronProcess *cron.EntryID
+
+	LastMatch *time.Time
 }
 
 type User struct {
@@ -69,6 +71,15 @@ type RegReq struct {
 	LastName     string
 	PasswordHash []byte
 	Phone        string
+}
+
+type CoffeeMatch struct {
+	FirstID  string
+	SecondID string
+
+	MatchedAt time.Time
+	MetAt     *time.Time
+	MeetTime  *time.Duration
 }
 
 func enableCors(w *http.ResponseWriter, r *http.Request) bool {

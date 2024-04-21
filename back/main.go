@@ -46,6 +46,10 @@ func main() {
 	if err != nil {
 		log.Fatalln("Unable to automigrate db:", err)
 	}
+	err = db.AutoMigrate(&CoffeeMatch{})
+	if err != nil {
+		log.Fatalln("Unable to automigrate db:", err)
+	}
 
 	s := NewServer(os.Getenv("SERVER_ADDRESS"), db)
 
