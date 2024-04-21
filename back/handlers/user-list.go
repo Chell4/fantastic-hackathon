@@ -73,7 +73,12 @@ func (s *HandlersServer) HandleUserListPost(w http.ResponseWriter, r *http.Reque
 	}
 
 	var users []User
-	err = s.DB.Table("users").Offset(max(req.Offset, 0)).Limit(min(max(req.Size, 0), 50)).Find(&users).Error
+	err = s.DB.Table("users").
+		Order("first_name, second_name").
+		Offset(max(req.Offset, 0)).
+		Limit(min(max(req.Size, 0), 50)).
+		Find(&users).
+		Error
 	if CheckServerError(w, err) {
 		return
 	}
