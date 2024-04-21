@@ -56,6 +56,21 @@ func (s *HandlersServer) HandleAddAdminPost(w http.ResponseWriter, r *http.Reque
 		})
 	}
 
+	var cnt int64
+	err = s.DB.Table("users").Where("id = ?", req.ID).Count(&cnt).Error
+	if CheckServerError(w, err) {
+		return
+	}
+
+	if cnt == 0 {
+		ErrorMap(w, http.StatusNotFound, map[string]interface{}{
+			"type":    "id",
+			"reason":  "not_exist",
+			"explain": ErrExplainIDnotExist,
+		})
+		return
+	}
+
 	err = s.DB.Table("users").Where("id = ?", req.ID).Update("is_admin", true).Error
 	if CheckServerError(w, err) {
 		return

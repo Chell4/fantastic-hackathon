@@ -22,6 +22,11 @@ type RegRequestPostResponse struct {
 	Requests []RegRequestData `json:"requests"`
 }
 
+type RegRequestPutRequest struct {
+	ID     string `json:"id"`
+	Accept bool   `json:"accept"`
+}
+
 func (s *HandlersServer) HandleRegRequests(w http.ResponseWriter, r *http.Request) {
 	if enableCors(&w, r) {
 		return
@@ -30,7 +35,7 @@ func (s *HandlersServer) HandleRegRequests(w http.ResponseWriter, r *http.Reques
 	case "POST":
 		s.HandleRegRequestsPost(w, r)
 	case "PUT":
-
+		s.HandleRegRequestsPut(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
@@ -97,4 +102,87 @@ func (s *HandlersServer) HandleRegRequestsPost(w http.ResponseWriter, r *http.Re
 	}
 
 	ErrorMap(w, http.StatusOK, resp)
+}
+
+func (s *HandlersServer) HandleRegRequestsPut(w http.ResponseWriter, r *http.Request) {
+	user, valid := s.ValidateToken(w, r)
+	if !valid {
+		return
+	}
+
+	if !user.IsAdmin {
+		ErrorMap(w, http.StatusUnauthorized, map[string]interface{}{
+			"type":    "admin",
+			"reason":  "not_admin",
+			"explain": ErrExplainNotAdmin,
+		})
+		return
+	}
+
+	reqJSON, err := io.ReadAll(r.Body)
+	if err != nil {
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "data",
+			"reason":  "body",
+			"explain": ErrExplainCannotReadBody,
+		})
+		return
+	}
+
+	var req RegRequestPutRequest
+	err = json.Unmarshal(reqJSON, &req)
+	if err != nil {
+		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
+			"type":    "data",
+			"reason":  "json",
+			"explain": ErrExplainInvalidJSON,
+		})
+		return
+	}
+
+	var cnt int64
+	err = s.DB.Table("reg_reqs").Where("id = ?", req.ID).Count(&cnt).Error
+	if CheckServerError(w, err) {
+		return
+	}
+
+	if cnt == 0 {
+		ErrorMap(w, http.StatusNotFound, map[string]interface{}{
+			"type":    "id",
+			"reason":  "not_exist",
+			"explain": ErrExplainIDnotExist,
+		})
+		return
+	}
+
+	if !req.Accept {
+		err = s.DB.
+			Table("reg_reqs").
+			Where("id = ?", req.ID).
+			Delete(&RegReq{}).
+			Error
+		if CheckServerError(w, err) {
+			return
+		}
+		return
+	}
+
+	var regReq RegReq
+	err = s.DB.Table("reg_reqs").Where("id = ?", req.ID).Take(&regReq).Error
+	if CheckServerError(w, err) {
+		return
+	}
+
+	err = s.DB.Table("users").Save(&User{
+		ID:           regReq.ID,
+		FirstName:    regReq.FirstName,
+		LastName:     regReq.LastName,
+		PasswordHash: regReq.PasswordHash,
+		Phone:        regReq.Phone,
+	}).Error
+	if CheckServerError(w, err) {
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
