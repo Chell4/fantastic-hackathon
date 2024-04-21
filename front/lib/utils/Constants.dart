@@ -1,1 +1,1 @@
-String BACKEND = "http://144.21.39.77:8488/";
+String BACKEND = "https://xn--90agcup9g.xn--b1agjiduva.xn--p1ai:8488/";
