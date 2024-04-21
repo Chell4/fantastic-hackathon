@@ -38,7 +38,13 @@ func (s *HandlersServer) HandleMyMediaGet(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	pic, err := os.ReadFile("media/" + *user.PicturePath)
+	ex, err := os.Executable()
+	if CheckServerError(w, err) {
+		return
+	}
+	exPath := filepath.Dir(ex)
+
+	pic, err := os.ReadFile(exPath + "/media/" + *user.PicturePath)
 	if err != nil {
 		ErrorMap(w, http.StatusBadRequest, map[string]interface{}{
 			"type":    "media",
@@ -67,8 +73,8 @@ func (s *HandlersServer) HandleMyMediaPost(w http.ResponseWriter, r *http.Reques
 	}
 
 	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
+	if CheckServerError(w, err) {
+		return
 	}
 	exPath := filepath.Dir(ex)
 

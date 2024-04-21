@@ -35,8 +35,8 @@ func (s *HandlersServer) HandleMediaGet(w http.ResponseWriter, r *http.Request) 
 	}
 
 	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
+	if CheckServerError(w, err) {
+		return
 	}
 	exPath := filepath.Dir(ex)
 
