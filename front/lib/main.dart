@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'dart:html' as html;
+import 'package:front/entities/AvatarImage.dart';
 import 'package:front/screens/Admin.dart';
 import 'package:front/screens/ChangeProfile.dart';
 import 'package:front/utils/Constants.dart';
@@ -42,7 +44,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp.router(
       title: 'NACO',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black45),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 222, 0)),
         useMaterial3: true,
         fontFamily: "Montserrat",
         textTheme: Theme.of(context).textTheme.apply(
@@ -58,7 +60,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyHomePage extends StatefulWidget {
-  static late _MyHomePageState instance;
+  static _MyHomePageState? instance;
 
   const MyHomePage({super.key});
 
@@ -67,7 +69,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 final GoRouter router = GoRouter(routes: [
-  GoRoute(path: '/', name: "Home", builder: (_, __) => MyHomePage()),
+  GoRoute(path: '/', name: "Home", builder: (_, __) {
+    User.updateProfile();
+    return MyHomePage();
+  }),
   GoRoute(path: '/login', name: "Login", builder: (_, __) {
     print(__.extra);
     Map<String, dynamic>? args =
@@ -100,29 +105,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool _loaded = false;
 
+  Uint8List? avatar;
+
   User? currentUser;
 
   Future<void> initialize() async {
-    final response = await http.get(
-        Uri.parse("${BACKEND}profile"),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
-        }
-    );
-
-    if (response.statusCode == HttpStatus.unauthorized) {
-      html.window.localStorage.remove("authToken");
+    bool profile = await User.updateProfile();
+    if (!profile) {
       context.go("/login");
     }
-
-    if (response.statusCode == HttpStatus.ok) {
-      print(response.body);
-      currentUser = User.fromJson(jsonDecode(response.body));
-      setState(() {
-        _loaded = true;
-      });
-    }
+    Uint8List? avatari = await currentUser?.getMedia();
+    setState(() {
+      avatar = avatari;
+    });
   }
 
   @override
@@ -140,14 +135,29 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Key imageKey = GlobalKey();
 
+  bool newAvatar = false;
+
+  AvatarImage? image;
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    if(html.window.location.href.split("\?").length >= 2 && html.window.location.href.split("\?").contains("changedProfile=true")) {
+      setState(() {
+        newAvatar = true;
+        _loaded = false;
+        html.window.location.href = html.window.location.href.split("\?")[0];
+      });
+    }
+
     double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
     widthProp = screenWidth >= 700;
     print(screenWidth);
+
+    image = AvatarImage(avatar: avatar, width: max(128, screenWidth / 4 - 60));
+
 
     List<Widget> profile = [
       FittedBox(fit: BoxFit.scaleDown, child: Material(
@@ -185,8 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ..repeat();
                   },
                   filterQuality: FilterQuality.low,
-                ) :
-                Image.network("$BACKEND/media/${currentUser!.picturePath!}", width: max(128, screenWidth / 4 - 60), height: max(128, screenWidth / 4 - 60), fit: BoxFit.cover, filterQuality: FilterQuality.medium,)
+                ) : image!
               ],
             ),
           ),
@@ -245,6 +254,16 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
+                context.go("/admin");
+              },
+              icon: Icon(Icons.admin_panel_settings),
+              label: Text("Admin Panel"),
+            ),
+          ),
+          SizedBox(width: 10), // Промежуток между кнопками
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
                 html.window.localStorage.remove("authToken");
                 context.go("/login");
               },
@@ -260,12 +279,18 @@ class _MyHomePageState extends State<MyHomePage> {
         future: _initFuture, // Pass the future that represents the asynchronous operation
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // If the future is still waiting, show a loading indicator
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             // If an error occurred while fetching data, display an error message
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
+            if (!_loaded) {
+              WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+                setState(() {
+                  _loaded = true;
+                });
+              });
+            }
             return Scaffold(
               backgroundColor: Colors.black12,
               body: Row(

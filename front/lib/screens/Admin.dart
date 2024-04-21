@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:front/entities/AvatarImage.dart';
+import 'package:front/main.dart';
+import 'package:go_router/go_router.dart';
 
 class Admin extends StatefulWidget {
   const Admin({Key? key}) : super(key: key);
@@ -10,26 +13,34 @@ class Admin extends StatefulWidget {
 class _AdminState extends State<Admin> {
   @override
   Widget build(BuildContext context) {
+
+    if (MyHomePage.instance == null) context.go("/");
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: Text('Админ', style: TextStyle(color: Colors.white)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.blue),
+          toolbarHeight: 200,
+          elevation: 0,
+
+          titleSpacing: 0,
+          title: Image.network("https://oggetto.ru/lfs-images/oggetto-logo/logo-2x.png", width: 400,),
+          actions: [
+            CircleAvatar(
+              // Здесь можно добавить вашу иконку админа
+              radius: 50,
+              backgroundImage: MyHomePage.instance!.avatar != null ? Image.memory(MyHomePage.instance!.avatar!, width: 128,)!.image : null,
+              child: MyHomePage.instance!.avatar == null ? Icon(Icons.person) : Container(),
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () {
-              // Добавьте код для выхода из аккаунта
-            },
-          ),
-        ],
-      ),
+            SizedBox(width: 16),
+            IconButton(
+              icon: Icon(Icons.arrow_back),
+              iconSize: 50,
+              onPressed: () {
+                context.go("/");
+              },
+            ),
+            SizedBox(width: 48), // Добавляет промежуток между иконкой админа и кнопкой выхода
+          ],
+        ),
       body: ListView(
         padding: EdgeInsets.all(16),
         children: [

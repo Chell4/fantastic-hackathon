@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:js_util';
 import 'dart:math';
 import 'dart:ui';
 
@@ -30,6 +31,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
   final TextEditingController _firstController = TextEditingController();
   final TextEditingController _lastController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordController2 = TextEditingController();
 
   final ShakerController shakeController = ShakerController();
 
@@ -53,6 +55,16 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
     var ph = FormValidation.requiredTextField(password);
     if (ph == null && phoneError == null) return null;
     if (ph != null) return ph;
+    return null;
+  }
+
+  String? passValidator2(String? password) {
+    if (passError != null) return passError;
+    var ph = FormValidation.requiredTextField(password);
+    if (ph != null) return ph;
+    if (_passwordController2.value.text != _passwordController.value.text) {
+      return "Passwords are not matching";
+    }
     return null;
   }
 
@@ -121,22 +133,40 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                 .size
                 .width * 0.3);
 
-            return Center(
-              child: Container(
-                width: min(maxWidth, constraints.maxWidth),
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                  child: Form(
-                    key: _key,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Shaker(controller: shakeController, child:
-                          Lottie.asset(
+            return Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 237, 180, 0),
+              ),
+              child: Center(
+                child: Container(
+                  width: min(maxWidth, constraints.maxWidth),
+                  height: constraints.maxHeight - 60,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5), // Цвет тени
+                        spreadRadius: 3, // Радиус размытия тени
+                        blurRadius: 7, // Радиус размытия тени
+                        offset: Offset(0, 3), // Смещение тени по горизонтали и вертикали
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(40, 0, 40, 40),
+                    child: Form(
+                      key: _key,
+                      child: SingleChildScrollView(
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            Shaker(controller: shakeController, child:
+                            Lottie.asset(
                               "assets/IdentificationCard.json",
                               controller: _gifController,
-                              width: min(maxWidth, constraints.maxWidth) * 0.6,
+                              width: min(maxWidth, constraints.maxWidth) * 0.5,
                               frameRate: const FrameRate(60),
                               onLoaded: (composition) {
                                 // Configure the AnimationController with the duration of the
@@ -147,144 +177,160 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin  {
                                   ..repeat();
                               },
                               filterQuality: FilterQuality.medium,
-                          )
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.05,
-                          ),
-                          PhoneFormField(
-                            key: phoneKey,
-                            controller: phoneController,
-                            validator: PhoneValidator.compose(
-                                [
-                                  PhoneValidator.required(context),
-                                  PhoneValidator.validMobile(context),
-                                  <String>(String phone) {
-                                    return phoneError;
-                                  }
-                                ]),
-                            enabled: true,
-                            isCountrySelectionEnabled: true,
-                            isCountryButtonPersistent: true,
-
-                            onChanged: (PhoneNumber a) {
-                              phoneError = null;
-                            },
-
-                            countryButtonStyle: const CountryButtonStyle(
-                                showDropdownIcon: false,
-                              showDialCode: true,
-                              showFlag: true,
-                              showIsoCode: false
-                            ),
-
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
                             )
-                            // + all parameters of TextField
-                            // + all parameters of FormField
-                            // ...
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.025,
-                          ),
-                          MaterialTextField(
-                            controller: _passwordController,
-                            keyboardType: TextInputType.visiblePassword,
-                            obscureText: true,
-                            hint: "Password",
-                            labelText: "Password",
-                            theme: FilledOrOutlinedTextTheme(
-                              enabledColor: Colors.grey,
-                              focusedColor: Colors.grey.shade400,
-                              fillColor: Colors.transparent,
                             ),
-                            errorText: passError,
-                            textInputAction: TextInputAction.next,
-                            prefixIcon: const Icon(Icons.lock),
-                            validator: passValidator,
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.025,
-                          ),
-                          Card(
-                            clipBehavior: Clip.none,
-                            borderOnForeground: false,
-                            shadowColor: Colors.transparent,
-                            color: Colors.transparent,
-                            surfaceTintColor: Colors.transparent,
-                            margin: EdgeInsets.zero,
-                            child: Wrap(
-                              clipBehavior: Clip.hardEdge,
-                              direction: Axis.horizontal,
-                              spacing: 8.0,
-                              runSpacing: 0.0,
-                              children: [
-                                SizedBox(
-                                  width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 4,
-                                  child: MaterialTextField(
-                                    controller: _firstController,
-                                    keyboardType: TextInputType.name,
-                                    hint: "First Name",
-                                    labelText: "First Name",
-                                    theme: FilledOrOutlinedTextTheme(
-                                      enabledColor: Colors.grey,
-                                      focusedColor: Colors.grey.shade400,
-                                      fillColor: Colors.transparent,
-                                    ),
+                            SizedBox(
+                              height: min(maxWidth, constraints.maxWidth) * 0.05,
+                            ),
+                            PhoneFormField(
+                                key: phoneKey,
+                                controller: phoneController,
+                                validator: PhoneValidator.compose(
+                                    [
+                                      PhoneValidator.required(context),
+                                      PhoneValidator.validMobile(context),
+                                      <String>(String phone) {
+                                        return phoneError;
+                                      }
+                                    ]),
+                                enabled: true,
+                                isCountrySelectionEnabled: true,
+                                isCountryButtonPersistent: true,
 
-                                    textInputAction: TextInputAction.next,
-                                    validator: FormValidation.requiredTextField,
-                                  ),
+                                onChanged: (PhoneNumber a) {
+                                  phoneError = null;
+                                },
+
+                                countryButtonStyle: const CountryButtonStyle(
+                                    showDropdownIcon: false,
+                                    showDialCode: true,
+                                    showFlag: true,
+                                    showIsoCode: false
                                 ),
-                                SizedBox(
-                                  width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 4,
-                                  child: MaterialTextField(
-                                    controller: _lastController,
-                                    keyboardType: TextInputType.name,
-                                    hint: "Last Name",
-                                    labelText: "Last Name",
-                                    theme: FilledOrOutlinedTextTheme(
-                                      enabledColor: Colors.grey,
-                                      focusedColor: Colors.grey.shade400,
-                                      fillColor: Colors.transparent,
-                                    ),
 
-                                    textInputAction: TextInputAction.next,
-                                    validator: FormValidation.requiredTextField,
-                                  ),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
                                 )
-                              ],
-
+                              // + all parameters of TextField
+                              // + all parameters of FormField
+                              // ...
                             ),
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.05,
-                          ),
-                          ElevatedButton(
-                            onPressed: onSubmitBtnPressed,
-                            child: Text('Register', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                            SizedBox(
+                              height: min(maxWidth, constraints.maxWidth) * 0.025,
+                            ),
+                            MaterialTextField(
+                              controller: _passwordController,
+                              keyboardType: TextInputType.visiblePassword,
+                              obscureText: true,
+                              hint: "Password",
+                              labelText: "Password",
+                              theme: FilledOrOutlinedTextTheme(
+                                enabledColor: Colors.grey,
+                                focusedColor: Colors.grey.shade400,
+                                fillColor: Colors.transparent,
+                              ),
+                              errorText: passError,
+                              textInputAction: TextInputAction.next,
+                              prefixIcon: const Icon(Icons.lock),
+                              validator: passValidator,
+                            ),
+                            SizedBox(
+                              height: min(maxWidth, constraints.maxWidth) * 0.025,
+                            ),
+                            MaterialTextField(
+                              controller: _passwordController2,
+                              keyboardType: TextInputType.visiblePassword,
+                              obscureText: true,
+                              hint: "Confirm Password",
+                              labelText: "Confirm Password",
+                              theme: FilledOrOutlinedTextTheme(
+                                enabledColor: Colors.grey,
+                                focusedColor: Colors.grey.shade400,
+                                fillColor: Colors.transparent,
+                              ),
+                              errorText: passError,
+                              textInputAction: TextInputAction.next,
+                              prefixIcon: const Icon(Icons.lock),
+                              validator: passValidator2,
+                            ),
+                            SizedBox(
+                              height: min(maxWidth, constraints.maxWidth) * 0.025,
+                            ),
+                            Card(
+                              clipBehavior: Clip.none,
+                              borderOnForeground: false,
+                              shadowColor: Colors.transparent,
+                              color: Colors.transparent,
+                              surfaceTintColor: Colors.transparent,
+                              margin: EdgeInsets.zero,
+                              child: Wrap(
+                                clipBehavior: Clip.hardEdge,
+                                direction: Axis.horizontal,
+                                spacing: 8.0,
+                                runSpacing: 0.0,
+                                children: [
+                                  SizedBox(
+                                    width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 30,
+                                    child: MaterialTextField(
+                                      controller: _firstController,
+                                      keyboardType: TextInputType.name,
+                                      hint: "First Name",
+                                      labelText: "First Name",
+                                      theme: FilledOrOutlinedTextTheme(
+                                        enabledColor: Colors.grey,
+                                        focusedColor: Colors.grey.shade400,
+                                        fillColor: Colors.transparent,
+                                      ),
+
+                                      textInputAction: TextInputAction.next,
+                                      validator: FormValidation.requiredTextField,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: (min(maxWidth, constraints.maxWidth) - 40) / 2 - 30,
+                                    child: MaterialTextField(
+                                      controller: _lastController,
+                                      keyboardType: TextInputType.name,
+                                      hint: "Last Name",
+                                      labelText: "Last Name",
+                                      theme: FilledOrOutlinedTextTheme(
+                                        enabledColor: Colors.grey,
+                                        focusedColor: Colors.grey.shade400,
+                                        fillColor: Colors.transparent,
+                                      ),
+
+                                      textInputAction: TextInputAction.next,
+                                      validator: FormValidation.requiredTextField,
+                                    ),
+                                  )
+                                ],
+
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: min(maxWidth, constraints.maxWidth) * 0.025,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              context.go("/login");
-                            },
-                            child: Text("Or sign in...", style: Theme.of(context).textTheme.bodyMedium!.copyWith(decoration: TextDecoration.underline),),
-                          ),
-                          SizedBox(
-                            height: constraints.maxHeight * 0.15,
-                          ),
-                          const Text("Natus Coders for Oggetto, 2024")
-                        ],
+                            SizedBox(
+                              height: min(maxWidth, constraints.maxWidth) * 0.025,
+                            ),
+                            ElevatedButton(
+                              onPressed: onSubmitBtnPressed,
+                              child: Text('Register', textScaler: TextScaler.linear(1.2), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: min(maxWidth, constraints.maxWidth) * 0.025,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                context.go("/login");
+                              },
+                              child: Text("Or sign in...", style: Theme.of(context).textTheme.bodyMedium!.copyWith(decoration: TextDecoration.underline),),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
