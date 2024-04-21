@@ -9,9 +9,9 @@ import '../utils/Constants.dart';
 
 class User {
   final String? id, phone, firstName, secondName, description, lastName, picturePath;
-  final bool? isAdmin;
+  final bool? isAdmin, isReady;
 
-  User(this.id, this.phone, this.firstName, this.secondName, this.lastName, this.description, this.picturePath, this.isAdmin);
+  User(this.id, this.phone, this.firstName, this.secondName, this.lastName, this.description, this.picturePath, this.isAdmin, this.isReady);
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -22,7 +22,8 @@ class User {
       json['last_name'],
       json['description'],
       json['picture_path'],
-      json['is_admin']
+      json['is_admin'],
+      json['is_ready'],
     );
   }
 
@@ -65,5 +66,45 @@ class User {
     return Uint8List(0);
   }
 
+  Future<String> getMatches() async {
+    final response = await http.get(
+        Uri.parse("${BACKEND}profile/matches"),
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
+        }
+    );
+
+    if (response.statusCode == HttpStatus.unauthorized) {
+      return "{}";
+    }
+
+    if (response.statusCode == HttpStatus.ok) {
+      return response.body;
+    }
+    return "{}";
+  }
+
+  Future<bool> ready(bool ready) async {
+    final response = await http.post(
+        Uri.parse("${BACKEND}profile/ready"),
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          HttpHeaders.authorizationHeader: "Bearer ${html.window.localStorage["authToken"]}"
+        },
+        body: {
+          "ready": ready
+        }
+    );
+
+    if (response.statusCode == HttpStatus.unauthorized) {
+      return false;
+    }
+
+    if (response.statusCode == HttpStatus.ok) {
+      return true;
+    }
+    return false;
+  }
 
 }
