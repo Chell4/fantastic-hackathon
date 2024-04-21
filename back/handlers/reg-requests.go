@@ -173,7 +173,7 @@ func (s *HandlersServer) HandleRegRequestsPut(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = s.DB.Table("users").Save(&User{
+	err = s.DB.Table("users").Create(&User{
 		ID:           regReq.ID,
 		FirstName:    regReq.FirstName,
 		LastName:     regReq.LastName,
@@ -184,5 +184,5 @@ func (s *HandlersServer) HandleRegRequestsPut(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
