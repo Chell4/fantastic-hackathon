@@ -10,6 +10,7 @@ import (
 )
 
 type ProfileGetResponse struct {
+	ID          string `json:"id"`
 	FirstName   string `json:"first_name"`
 	SecondName  string `json:"second_name"`
 	LastName    string `json:"last_name"`
@@ -59,6 +60,7 @@ func (s *HandlersServer) HandleProfileGet(w http.ResponseWriter, r *http.Request
 	}
 
 	ErrorMap(w, http.StatusOK, ProfileGetResponse{
+		ID:          user.ID,
 		FirstName:   user.FirstName,
 		SecondName:  secondName,
 		LastName:    user.LastName,
